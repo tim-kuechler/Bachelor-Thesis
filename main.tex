@@ -1,0 +1,85 @@
+ %%%%Textart%%%%
+\documentclass[a4paper, 12pt, oneside]{scrbook}
+
+%Alle packages, commands, etc ausgelagert in mystyle.sty
+\usepackage{mystyle}
+
+
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+{\huge Semantic Image Synthesis with Score-Based Generative Models} 
+\vspace{2cm}\\
+{\large by\\Tim Küchler}
+\vspace{2cm}\\
+{Professor Björn Ommer, Advisor}
+\vfill
+A thesis submitted in partial fulfillment\\
+of the requirements for the\\
+Degree of Bachelor of Arts with Honors\\
+in Physics
+\vspace*{3cm}
+Ruprecht Karl University of Heidelberg\\
+Heidelberg, Germany\\
+\today % 
+\end{center}
+\end{titlepage}
+%
+\frontmatter 
+\chapter{Abstract}
+\begin{center}
+
+\end{center}
+
+\chapter{Acknowledgments}
+
+\tableofcontents
+
+\mainmatter
+\chapter{Introduction}
+\section{Generating realistic data} %0.5-1
+
+\section{Semantic Segmentation and Semantic Synthesis} %0.5-1
+\section{Score-Based Models - The new contenders to GANs?} %0.5-1
+
+\chapter{State of the art}
+\section{Semantic Segmentation} %0.5-1
+\subsection{Introduction}
+\subsection{U-Net} %1-2
+\subsection{FCN}
+\subsection{Dense}
+\subsection{FC Dense} 
+\section{Generative models - GANs, VAEs and Co.} %0.5-1
+\subsection{Introduction}
+\subsection{Generative Adversarial networks (GANs)} %4-6
+\subsection{Variational Autoencoders (VAEs) (eher kurz in 2.2.4)} %1-1.5
+\subsection{Other Generative Models} %0.5-1
+
+\chapter{Score-Based Generative Models} %5-7
+\chaptermark{SGM}
+\input{Chapters/chapter3}
+
+
+\section{Ganze viele Sections}
+\section{Improvements and Adaptations}
+\subsection{Solving reverse SDEs - Gotta go fast} %1-1.5
+\subsection{Mixed precision learning} %0.5-1
+\subsection{Training on arbitrary image sizes} %0.5-1
+
+\chapter{Implementation and Experiments}
+\section{Controllable Generation} %0.5-1
+\section{Class-Conditional Sampling} %0.5-1
+\section{Semantic Synthesis Sampling} %1-2
+\section{A competitive experiment on the Cityscapes dataset} %5-7
+\section{Generating high resolution landscapes} %5-7
+
+\chapter{Conclusions and outlook} %2-3
+%min 32 max 47
+\appendix 
+\bibliography{bibliography}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\end{document}

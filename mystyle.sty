@@ -1,0 +1,79 @@
+\ProvidesPackage{mystyle}
+
+%Setzt Textinterpretierung auf UTF8
+\usepackage[utf8]{inputenc}
+%Setzt Spracheinstellung auf Englisch
+\usepackage[british]{babel}
+%Kein Plan, irgendwas mit korrektem Export oder so
+\usepackage[T1]{fontenc}
+%Mathefunktionen und Symbole
+\usepackage{amsmath}
+\usepackage{amssymb}
+%Große Integrale (benutzbar mit \mathlarger{...})
+\usepackage{relsize}
+%Zum editieren von Header und Footer
+\usepackage{fancyhdr}
+%Einbinden von pdf_tex
+\usepackage{graphicx,import}
+\usepackage{color}
+\usepackage{transparent}
+%Für mehrere Abbildungen nebeneinander (benutzbar mit \begin{figure}...\begin{subfigure}{Breite dieser subfigure}...)
+\usepackage{subcaption}
+%Alle Referenz packages
+\usepackage{varioref}
+\usepackage{hyperref}
+\usepackage{cleveref}
+%\nicefrac{}{} für diagonale Brüche
+\usepackage{nicefrac}
+%Durchstreichen von Termen von links unten nach rechts oben
+\usepackage{cancel}
+% Tabellen
+\usepackage{tabularx}
+\usepackage{multicol}
+%Lipsum
+\usepackage{lipsum}
+%Zeilenabstand
+\usepackage{setspace}
+\setstretch{1.3}
+%
+\usepackage[nottoc]{tocbibind}
+
+\usepackage{wrapfig}
+
+%\usepackage{algorithm2e}
+%\usepackage[linesnumbered]{algorithm2e}
+%\usepackage[linesnumbered,ruled]{algorithm2e}
+%\usepackage[longend, linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage[noend, linesnumbered,ruled,noline]{algorithm2e}
+
+% Change number style
+%\SetNlSty{textbf}{}{*}
+\SetNlSty{}{}{:}
+
+% Declare new parameter
+\SetKwInOut{Require}{Require}
+
+%Comment style
+\SetKwComment{Comment}{$\triangleright$\,}{}
+
+\usepackage[numbers]{natbib}
+\bibliographystyle{abbrv}
+
+\renewcommand*{\familydefault}{\sfdefault}
+
+%Leerzeichen nach Punkt größer als Leerzeichen im Satz. Für Punkte bei Abkürzungen benutze: z.B\. für normalen Abstand nach dem Punkt
+\nonfrenchspacing
+%Header und Footer
+\pagestyle{fancy}
+\fancyhead[LE,RO]{\slshape \rightmark}
+\fancyhead[LO,RE]{\slshape \leftmark}
+\fancyfoot[C]{\thepage}
+
+% Absatz 
+\setlength{\parindent}{1em}
+
+% Vektoren ab jetzt in Boldface
+\renewcommand{\Vec}[1]{\boldsymbol{#1}}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
