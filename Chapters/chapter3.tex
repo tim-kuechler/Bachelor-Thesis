@@ -72,10 +72,11 @@ Now the connection between Sampling with Langevin Dynamics and Score Matching (\
 This equation is a recursive algorithm that can be used to sample from $p_{data}$. Here $\tilde{\vec{x}}_0$ is a value from the prior distribution given above and the $\sim$ above the $\vec{x}$ shows that $\tilde{\vec{x}}$ is not in dataset nor described by the data distribution $p_{data}(\vec{x})$ but a random initial sample. Furthermore $z_t\sim\mathcal{N}(0, I)$ is Gaussian noise and $\epsilon$ is the step size of the algorithm. The sample after $T$ steps is a perfect sample of $p_{data}$ when $T\rightarrow\infty$ and $\epsilon\rightarrow0$. For application of this algorithm $T\gg0$ and $\epsilon\ll1$ are assumed.
 
 Recapitulating what the algorithm does one can look at \cref{fig:3.1}. The lines in the left image show a particle moving randomly according to \cref{equ:3.5}. In the background the underlieing (heartshaped) data density function  is represented and in the right image samples are shown, where each of the dots is an initial sample from the prior distribution that was transformed using \cref{equ:3.7}. When applying \cref{equ:3.7} to infinite values from the prior distribution this process can be thought of as transforming one distribution to another one. As a side-note, the formulation of this integrated process is given by the \textit{Fokker-Planck-Equation} – another important equation in physics. For the purposes of score-based models only a one-by-one application of \cref{equ:3.7} is needed, essentially transforming one image from a noise distribution to an image that looks like it belongs the data distribution of the target dataset.
+%
 \begin{figure}[] \label{fig:3.1}
-\centering
-\includegraphics[width=.8\textwidth]{Chapters/figures/langevin.PNG}
-\caption[Short-form caption]{Application of Langevin Dynamics sampling}
+    \centering
+    \includegraphics[width=.8\textwidth]{Chapters/figures/langevin.PNG}
+    \caption[Short-form caption]{Application of Langevin Dynamics sampling}
 \end{figure}
 %
 \section{Hindrances of a na\"{i}ve applicaton}
@@ -94,7 +95,7 @@ This has some consequences for score estimation. For data distributions there ar
 \section[Introducing noise to the data distribution]{Introducing noise to the data distribution%
     \sectionmark{Introducing noise}} \label{sec:3.3}
 \sectionmark{Introducing noise}
-To mitigate the hindrances stated in \cref{sec:3.2.1} and \cref{sec:3.2.2} the data is perturbed with random Gaussian noise. For the problem in \cref{sec:3.2.1} adding small Gaussian noise to the data ensures that the perturbed data distribution has as the same dimensionality than the whole space fixing the problem with the inconsistent score estimator. In addition the disturbed data distribution no longer concentrates on a low dimensional manifold so the score is now defined everywhere in ambient space.
+To mitigate the hindrances stated in \cref{sec:3.2.1} and \cref{sec:3.2.2} the data is perturbed with random Gaussian noise. For the problem in \cref{sec:3.2.1} adding small Gaussian noise to the data ensures that the perturbed data distribution has the same dimensionality than the whole space fixing the problem with the inconsistent score estimator. In addition the disturbed data distribution no longer concentrates on a low dimensional manifold so the score is now defined everywhere in ambient space.
 
 The solution to the problem in \cref{sec:3.2.2} is similar but requires large Gaussian noise. This large noise perturbes the data distribution in such a way that low density regions in the original low density region are filled which makes it possible for the score-models to improve on learning the score in low density regions.
 
@@ -163,6 +164,50 @@ With the release of \cite{score_1} the authors found that their \textit{FID (Fr�
     
     \caption{\textsc{Improved Annealed Langevin Dynamics}}
 \end{algorithm}
+\section[The way to continuous realms]{The way to continuous realms%
+    \sectionmark{Continuous Noise}} \label{sec:3.3}
+\sectionmark{Continuous Noise}
 
+\section{Improvements and Adaptations}
+\subsection{Mixed precision learning} %0.5-1
+vRAM usage and training speed are key aspects in training deep neural network. Complex models might consist of several million up to billion parameters to optimize. This requires an immense amount of computing power but at least equally important, vRAM. vRAM – videa random access memory – is the memory that a GPU has available during operation. Modern high end consumer graphic cards typically have around $10GB$ of vRam. The crux of the matter is that reaching more than $10GB$ when training a moderatly complex model is really easy and when training such complex models as NCSNs, the vRAM demand can increase beyond $100GB$ making training deep neural networks a very cost intensive business. Also when training complex models one can expect to need one week or more of training time making testing and finetuning of models very exhausting.
 
+To mitigate these problems the concept of \textit{Mixed Precision Learning} \cite{mixed_prec} was developed, decreasing both vRAM usage and training time with simultaneous retention of training quality, i.e. training loss. Normally each parameter of a network is stored as a float with $32bits$ of precision. Considering a network with $\sim250M$ parameters this would be equivalent to $\sim1GB$. What sounds not so much at first quickly becomes unmanageable when thinking of the series of matrix arithmetic's the parameters undergo and each calculation storing extra data such as gradients. 
+
+The idea of mixed precision learning is to use floats with a $16bit$ precision wherever possible. In order to not loose model accuracy two concepts are applied. First, there is always a $32bit$ master copy of the model weights. For the forward pass this master copy is converted to $16bit$ where the complex gradient calculations happen. In the backward pass these $16bit$ gradients are converted back to $32bit$ where they are then used by the optimizer to update the master weights. But this improvement during gradient calculation comes with the flaw of loosing some gradients as every number $<2^{-24}$ is equal to $0$ for $16bit$ precision but in most models there is at least some relevant gradient information in the range $[2^{-27},2^{-24})$. To mitigate this effect the concept of loss scaling was proposed. Loss scaling multiplies the $32bit$ loss after the forward pass by a scale factor to move them in the $16bit$ range in which the gradients are then computed in the backward pass. Thereafter the scaled $16bit$ gradients are converted to scaled $32bit$ gradients and then divided by the same scale factor as before. Finally these scaled gradients are used by the optimizer to update the master weights. The full concept can be seen in \hyperref[fig:3.2]{Fig. 3.2}.
+%
+\begin{figure}[] \label{fig:3.2}
+    \centering
+    \includegraphics[width=.9\textwidth]{Chapters/figures/mixed_prec.PNG}
+    \caption[Short-form caption]{Concept of Mixed Precision}
+\end{figure}
+%
+
+As the mixed precision technique was not used in the original SGM paper \cite{score_3} it was now implemented using the off the shelf pyTorch tools for mixed precision to check how much this technique improves vRAM usage and training time for the NCSN. To do so the NCSN was trained on the Cityscapes dataset on two different GPUs with the same model settings. For each GPU $2\times100$ epochs were passed, once with mixed precision on and once with mixed precision off. The first GPU was a \textit{Nvidia GeForce RTX 2080 Ti} with $11GB$ of vRAM and the second GPU was a \textit{Nvidia A100} with $40GB$ of vRAM. For both GPUs we used the maximum possible batch size for non mixed precision training which is $1$ for the RTX 2080 Ti and $5$ for the A100. The effects of mixed precision training on vRAM usage and training time can be seen in \hyperref[tab:3.1]{Tab. 3.1} resp. \hyperref[tab:3.1]{Tab. 3.2}. For the vRAM usage the total vRAM needed is shown and for the training time the average training time for one epoch is shown.
+%
+\begin{table}[] \label{tab:3.1}
+        \centering
+    \begin{tabular}{c|c|c}
+        GPU type        & Mixed precision \textbf{Off}    & Mixed precision \textbf{On} \\
+        \hline
+        RTX 2080 Ti     &  7791MB               & 7367MB\\
+        A100            &  39039MB              & 29481MB
+    \end{tabular}
+    \caption{vRAM usage w/ and w/o mixed precision}
+\end{table}
+\begin{table}[b] \label{tab:3.2}
+        \centering
+    \begin{tabular}{c|c|c}
+        GPU type        & Mixed precision \textbf{Off}    & Mixed precision \textbf{On} \\
+        \hline
+        RTX 2080 Ti     &  1494s                & 1206s    \\
+        A100            &  965s                 & 987s
+    \end{tabular}
+    \caption{Training time per epoch w/ and w/o mixed precision}
+\end{table}
+
+For the A100 serious improvements on vRAM usage can be observed. For the RTX 2080 Ti there are only little improvements for vRAM usage but good improvements on training time. In general mixed precision is expected to perform way better on the new Ampere GPU
+architecture (A100) than on the older Turing GPU architecture (RTX 2080 Ti). To ensure that the training quality does not suffer from the use of mixed precision the loss curves for all test setups are compared in ... It can be seen that there is no notable effect on training loss. Also a qualitative comparison of generated samples shows no difference perceptible by a human. We therefore conclude that – at least for non FID record breaking attempts – the mixed precision should be used and we do so for all upcoming experiment.
+
+\subsection{Training on arbitrary image sizes} %0.5-1
 
