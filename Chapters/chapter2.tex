@@ -1,0 +1,89 @@
+\section{Neural Networks}
+\subsection{The Perceptron}
+The basis of each Neural network is the \textit{perceptron}. A perceptron essentially is an algorithm that is inspired by biological neurons. The perceptron can therefore be understood as an artificial neuron.
+
+Mathematically a perceptron processes an input vector $\vec{x}\in\mathbb{R}^n$ and produces an output $\vec{y}\in\mathbb{R}^m$. 
+%
+\begin{figure} \label{fig:2.1}
+    \centering
+    \includegraphics[width=.5\textwidth]{Chapters/figures/perceptron.PNG}
+    \caption{Schematic layout of a perceptron}
+\end{figure}
+%
+In the simplified representation of a perceptron in \hyperref[fig:2.1]{Fig. 2.1} the inputs $x_i$ $ (i=0,\dots,m)$ are multiplied by weights $w_i$ and then summed. Thereafter an non-linear function is applied to produce the output $y\in\mathbb{R}$. It is the adaption of this weights to a specific problem that is the core of learning in a neural network. A generalization of the transformation described above is given by
+%
+\begin{equation} \label{equ:2.1}
+    \vec{A}\cdot\vec{x}+\vec{b}=\vec{\hat{\vec{y}}}
+\end{equation}
+%
+where $A\in\mathbb{R}^{m\times n}$ is a matrix of weights and $b\in\mathbb{R}^n$ is a bias. Then a non-linear transformation of the form
+%
+\begin{equation} \label{equ:2.2}
+    \vec{y}=\varphi(\hat{\vec{y}})
+\end{equation}
+%
+is applied to the intermediate result $\hat{\vec{y}}$. The non-linear function $\varphi(\cdot)$ is called the \textit{activation function}. This function has the task of mapping the arbitrary output from the range $(-\infty,\infty)$ to a more appropriate range. The choice of the activation function heavily on the specific architecture of a neural network. Typical choices of activation functions are the Sigmoid, Tanh, Softmax and ReLU functions. As activation functions do not play a big role in this thesis the concrete definition of these functions is left as an exploration to the reader.
+%
+\subsection{Multi-Layer Perceptrons}
+\subsection{Common Layers in Neural Networks}
+Depending on the task of the neural network different layers of perceptrons are used. The most common ones are \textit{Fully Connected Layers}, \textit{Normalization Layers}, \textit{Dropout Layers}, \textit{Convolutional Layers} and \textit{Pooling layers}. It is important to note that the choice of layers for a specific problem is \textbf{not} trivial! In fact, often it is not even clear why a specific layer is good for for a specific task. Furthermore when training a neural network it is – in general – impossible to have any insight on how the neural network learned the task.
+%
+\subsubsection{Fully Connected Layers}
+A fully connected layer is the easiest layer for neural networks. In this layer the output of every perceptron in one layer is connected to the input of every perceptron in the next layer. Mathematically this describes a linear operation between the perceptrons of two layers. Although fully connected layers are in theory able to fit every problem quite good they cannot be used excessively. Considering a $128\times128$ pixel RGB image leads to $4,831,838,208$ parameters to learn for two fully connected layers. Learning such a high amount of parameters (weights) is totally infeasible.
+%
+\subsubsection{Normalization Layers}
+Normalization layers normalize the given inputs. There are several normalization techniques that depend on the choice of what to normalize. Take Batch Normalization (BN) as an example. Suppose the image data is of the form $(N, C, W, H)$ where $N$ is the batch size, $C$ is the channel number (e.g. $3$ for RGB images) and $W$ and $H$ are width and height respectively. Then BN normalizes $(N, W, H)$ for each $C$ by transforming the input $\vec{x}$ in the following way:
+%
+\begin{equation}
+    \mu_B=\frac{1}{N}\sum_{i=1}^Nx_i, \quad\sigma_B^2=\frac{1}{N}\sum_{i=1}^N(x_i-\mu_B)^2\quad \Longrightarrow\quad y_i=\gamma\frac{x_i-\mu_B}{\sigma_B}+\beta,
+\end{equation}
+%
+where $\gamma$ and $\beta$ are learnable parameters of the layer. Depending on the dimensions of the input that get normalized there is also Channel Norm, Instance Norm and Group Norm. Normalization layers are used to improve the stability, speed and performance of neural networks.
+%
+\subsubsection{Convolutional Layers}
+The Convolution Layer might be the most important layer in computer vision and gives rise to the category of \textit{Convolutional Neural Networks} (CNNs). This type of Neural networks makes extensive use of convolutional layers and is an important concept in computer vision tasks.
+
+A Convolutional Layer is especially useful to extract features from images. For example these features could be lines in different direction but as mentioned above, normally we do not know what information (features) a neural network learns in a (convolutional) layer. In general, one can only say that in a CNN of subsequent Convolutional Layers the upper layers learn more simple features such as lines and the deeper layers learn more complex features, e.g. how a car looks like.
+
+As the Convolutional Layer is most often used for image feature extraction the \textit{2D-Convolution Layer} is the most popular Convolution Layer and is defined by a 2-dimensional convolution
+%
+\begin{equation}
+    y_{i,j}=(\vec{x}\ast\vec{f})_{i,j}=\sum_{c=1}^{C}\sum_{h=1}^{H_f}\sum_{w=1}^{W_f}\vec{f}_{c,h,w}\vec{x}_{i+h-1,j+w-1,c}\,,
+\end{equation}
+%
+for an input of size $(C,H,W)$. Essentially this operation can be understood as applying a filter $\vec{f}$ of size $(C, H_f, W_f)$ to each part of the image. For each position of the filter the corresponding values in the image are multiplied with the learned weights in the filter and then summed up. These summed values for each filter position then form a new output. A illustration of this process is shown in \hyperref[fig:2.2]{Fig. 2.2}.
+%
+\begin{figure} \label{fig:2.2}
+    \centering
+    \includegraphics[width=.65\textwidth]{Chapters/figures/convolution.PNG}
+    \caption{Operation principle of Convolutional Layers}
+\end{figure}
+%
+
+As Convolutional Layers generally are somewhat hard to understand further self-study is advised.
+%
+\subsubsection{Pooling Layers}
+As we have seen, Convolutional Layers summarize and learn specific features in an input image. These feature maps are very sensitive to the location of the features in the input. To make the feature maps more robust to changes in the position of the feature in the image, Pooling Layers are deployed. A Pooling Layer works by dividing the feature map into slices of size $n\times m$. These slices are then condensed to a single scalar value by a pooling operation. Popular pooling operations are \textit{max pooling} and \textit{average pooling} which given a slice $\tilde{\vec{x}}=x_{ij}$ for $i=1,\dots,n$ and $j=1,\dots,m$ compute the following:
+%
+\begin{align}
+    \text{max pooling:}\quad&f(\tilde{\vec{x}})=\max(x_{ij})\\
+    \text{average pooling:}\quad&f(\tilde{\vec{x}})=\frac{1}{n\cdot m}\sum_{i=1}^n\sum_{j=1}^mx_{ij}
+\end{align}
+%
+\subsubsection{Dropout (Layers)}
+Dropout Layers can be applied to any other layer type and have no learnable parameters. They are therefore no real layers. During training, specified by a dropout probability $p$, they randomly set parameters to $0$. The purpose of dropout is to prevent model overfitting, i.e. preventing the model from memorizing instead of learning a dataset.
+%
+\subsection{Model Objectives}
+The concept of \textit{model} is very important in Deep Learning. A model can be understood as a superordinate concept to a concrete implementation. We denote a model as $s_\theta(\vec{x})$, where $\vec{x}$ is the data input and $\theta$ is the set of all learnable parameters. The letter $s$ is chosen because we will discuss score-models in this thesis, but generally it is free of choice.
+
+The formulation of a model then can be used to formulate \textit{objectives}. An objective is a function that represents the task the model is trying to accomplish. Usually the task is represented such that the objective function is to be minimized or maximized. As an example, imagine a model that has the task to approximate (learn) the function $x^2$. The objective of this task can be chosen as
+%
+\begin{equation} 
+    \theta^*=\underset{\theta}{\arg \min}\norm{x^2-s_\theta(x)}.
+\end{equation}
+%
+The notation is interpreted in the following way: The optimal parameters $\theta^*$ are the ones that minimize the distance between $x^2$ and the model $s_\theta(x)$. This gives rise to the definition of the optimal model $s_{\theta^*}(\vec{x})$ which by definition solves the task perfectly. When describing the learning process of a model it is then stated that the trained model fulfills $s_\theta(\vec{x})\approx s_{\theta}^*(\vec{x})$ or in the case of our example $s_\theta(x)\approx s_{\theta}^*(x)\overset{!}{=}x^2$.
+
+If the model is dependent on additional information, e.g. time $t$, the model is expanded to $s_\theta(\vec{x}, t)$. In that case we say that the model is conditioned on $t$.
+
+\section{Mathematics of stochastic processes}
