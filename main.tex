@@ -1,5 +1,5 @@
  %%%%Textart%%%%
-\documentclass[a4paper, 12pt, oneside]{scrbook}
+\documentclass[a4paper, 12pt, oneside, BCOR=0cm]{scrbook}
 
 %Alle packages, commands, etc ausgelagert in mystyle.sty
 \usepackage{mystyle}
@@ -7,7 +7,6 @@
 
 
 \begin{document}
-
 \begin{titlepage}
 \begin{center}
     \Large\textbf{Department of Physics and Astronomy\\Ruprecht Karl University of Heidelberg}
@@ -35,7 +34,9 @@
     \large
     This Bachelor Thesis has been carried out by Tim Küchler\\
     at the\\
-    ?\\
+    Heidelberg Collaboratory for Image Processing\\
+    and the\\
+    Interdisciplinary Center for Scientific Computing\\
     under the supervision of\\
     Prof. Dr. Björn Ommer and $\dots$
     \afterpage{\blankpage}
@@ -58,6 +59,8 @@
 \tableofcontents
 \thispagestyle{empty}
 \addtocontents{toc}{\protect\thispagestyle{empty}}
+\afterpage{\blankpage}
+
 
 \mainmatter
 \chapter{Introduction}
@@ -83,7 +86,7 @@
 
 
 
-\chapter{Implementation and Experiments}
+\chapter{Implementation and Experiments} \label{chap:5}
 \input{Chapters/chapter5}
 
 

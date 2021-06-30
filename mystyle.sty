@@ -62,11 +62,11 @@
 \renewcommand*{\familydefault}{\sfdefault}
 
 %Leerzeichen nach Punkt größer als Leerzeichen im Satz. Für Punkte bei Abkürzungen benutze: z.B\. für normalen Abstand nach dem Punkt
-\nonfrenchspacing
+%\nonfrenchspacing
 %Header und Footer
 \pagestyle{fancy}
-\fancyhead[R]{\ifthenelse{\isodd{\value{page}}}{\slshape \leftmark}{\slshape\rightmark}}
-\fancyhead[L]{\ifthenelse{\isodd{\value{page}}}{\slshape \rightmark}{\slshape\leftmark}}
+\fancyhead[L]{\ifthenelse{\isodd{\value{page}}}{\slshape \leftmark}{\slshape\rightmark}}
+\fancyhead[R]{\ifthenelse{\isodd{\value{page}}}{\slshape \rightmark}{\slshape\leftmark}}
 %\fancyhead[LE,RO]{\slshape \rightmark}
 %\fancyhead[LO,RE]{\slshape \leftmark}
 %\fancyfoot[LO,RE]{\thepage}
