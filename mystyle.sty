@@ -65,9 +65,14 @@
 \nonfrenchspacing
 %Header und Footer
 \pagestyle{fancy}
-\fancyhead[LE,RO]{\slshape \rightmark}
-\fancyhead[LO,RE]{\slshape \leftmark}
-\fancyfoot[C]{\thepage}
+\fancyhead[R]{\ifthenelse{\isodd{\value{page}}}{\slshape \leftmark}{\slshape\rightmark}}
+\fancyhead[L]{\ifthenelse{\isodd{\value{page}}}{\slshape \rightmark}{\slshape\leftmark}}
+%\fancyhead[LE,RO]{\slshape \rightmark}
+%\fancyhead[LO,RE]{\slshape \leftmark}
+%\fancyfoot[LO,RE]{\thepage}
+\fancyfoot[R]{\ifthenelse{\isodd{\value{page}}}{\thepage}{}}
+\fancyfoot[L]{\ifthenelse{\isodd{\value{page}}}{}{\thepage}}
+\fancyfoot[C]{}
 
 % Absatz 
 \setlength{\parindent}{1em}
