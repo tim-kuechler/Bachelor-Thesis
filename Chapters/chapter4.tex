@@ -1,13 +1,13 @@
 As we have seen in the preceding chapters there is quite a large range of models designed to generate realistic data such as images, audio or video. Despite this high diversity only some of them – in particular GANs and VAEs – achieved outstanding success, on the basis of which they were heavily improved in the last years. It is therefore quite difficult to come up with a new model that is able to quickly keep up with these highly adapted models. The fact that in this harsh environment \textit{Score-Based Generative Models} \cite{score_1, score_3, score_2} were able to achieve state-of-the-art results explains why they recently gained a lot of attention and makes them a new promising contender to the field of well established generative models.
 
-As Score-Based Generative Models were going through a lot of changes since the first publication, the next sections chronologically explain Score-Based Generative Models and their evolution in detail. In \hyperref[sec:3.1]{Sec. 3.1} a brief overview of the core concepts of Score-Based Generative Models is given, followed by \hyperref[sec:3.2]{Sec. 3.2} explaining why these core concept fails when being used without adaptions. \hyperref[sec:3.3]{Sec. 3.3} then presents how adding discrete noise to the data distribution makes Score-Based Generative Modeling feasible, after which \hyperref[sec:3.4]{Sec. 3.4} generalizes this concept by introducing continuous noise governed by a Stochastical Differential Equation (SDE). Finally in \hyperref[sec:3.5]{Sec. 3.5} we present some minor improvements and changes we made to the model to make it more applicable for our uses.
+As Score-Based Generative Models were going through a lot of changes since the first publication, the next sections chronologically explain Score-Based Generative Models and their evolution in detail. In \hyperref[sec:4.1]{Sec.\,4.1} a brief overview of the core concepts of Score-Based Generative Models is given, followed by \hyperref[sec:4.2]{Sec.\,4.2} explaining why these core concept fails when being used without adaptions. \hyperref[sec:4.3]{Sec.\,4.3} then presents how adding discrete noise to the data distribution makes Score-Based Generative Modeling feasible, after which \hyperref[sec:4.4]{Sec.\,4.4} generalizes this concept by introducing continuous noise governed by a Stochastical Differential Equation (SDE). Finally in \hyperref[sec:4.5]{Sec.\,4.5} the theory behind controllable generation is presented.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The idea behind Score-Based Generative Models} \label{sec:3.1}
+\section{The idea behind Score-Based Generative Models} \label{sec:4.1}
 \sectionmark{The idea behind SGM}
 In general the most basic Score-Based Generative Model consists of two core ideas: First, estimating the score $\nabla_{\vec{x}}\log p(\vec{x})$ of an unknown data distribution $p_{data}(\vec{x})$ of a dataset $\{\vec{x}_i\in \mathbb{R}^d\}_{i=1}^N$ of $n$ i.i.d samples. This process is referred to as \textit{Score Matching} \cite{score_matching_original}. And second, using \textit{Langevin Dynamics} \cite{langevin1, langevin2} to sample from the data distribution by staring with an initial value $\tilde{\vec{x}_0}$ from a prior distribution $\pi(\vec{x})$. This value is then gradually transformed by $T$ recursive steps of Langevin Dynamics and will finally come out as $\tilde{\vec{x}}_T$ where $p(\tilde{\vec{x}}_T)\approx p_{data}(\vec{x})$, which makes it a nearly perfect sample of $p_{data}(\vec{x})$. The resulting generative modeling framework is called \textit{Score Matching Langevin Dynamics} (SMLD).
 %
-\subsection{Score Matching} \label{sec:3.1.1}
+\subsection{Score Matching} \label{sec:4.1.1}
 This section gives an overview of Score Matching and how this technique can be used to get an objective for a score estimator, i.e. the model that is trained to estimate the score $\nabla_{\vec{x}}\log p_{data}(\vec{x})$ of the data distribution $p_{data}(\vec{x})$. The section is mathematically fairly intensive (yet mathematically interesting) and for that reason the main goal of this section is to provide a good feeling for why using the estimation of the score function as a model objective is a reasonable idea.
 
 Score Matching \cite{score_matching_original} is an technique that originates from probabilistic models and their difficulties to be trained on an unnormalized probability density function $\tilde{p}(\vec{x})$ of a data distribution $p_{data}(\vec{x})$. The task of such a model $p_\theta(\vec{x})$ is to learn parameters $\theta$ such that $p_\theta(\vec{x})=p(\vec{x})$ where $p(\vec{x})$ is the normalized density function defined as
@@ -20,13 +20,13 @@ $Z$ is called the partition function and can be understood as a normalization co
 
 Score Matching avoids this problematic by minimizing the Fisher divergence between $p_{data}(\vec{x})$ and $p_\theta(\vec{x})$, which is defined as
 %
-\begin{equation} \label{equ:3.2}
+\begin{equation} \label{equ:4.2}
     L(\theta)\triangleq\frac{1}{2}\mathbb{E}_{p_{data}}[\norm{s_\theta(\vec{x})-\nabla_{\vec{x}}\log p_{data}(\vec{x})}^2_2],
 \end{equation}
 %
 where $s_\theta(\vec{x})\triangleq\nabla_{\vec{x}}\log p_\theta(\vec{x})$ and $\norm{\cdot}_2$ is the euclidean norm. From here on we now begin to transition from the probabilistic model $p_\theta(\vec{x})$ to the score model $s_\theta(\vec{x})$. One must understand that in the formulation of Score Matching there is no score model. Score Matching is for probabilistic models. In probabilistic models – to avoid the above mentioned problem with $Z$ – Score Matching is used as a kind of detour. There $s_\theta(\vec{x})$ describes not a model but an score estimator which is then used to further formulate an objective for $p_\theta(\vec{x})$. 
 
-Probabilistic Models aim to learn the data distribution itself. Score-Based Models ($s_\theta(\vec{x})$) aim to learn the score of the data distribution. Therefore no further steps are needed: \cref{equ:3.2} is the objective of Score-Based (Generative) Models. However there are some refining steps left as \cref{equ:3.2} is still not readily usable for leaning score-models because the data distribution $p_{data}(\vec{x})$ is unknown and so is $\nabla_{\vec{x}}\log p_{data}(\vec{x})$. 
+Probabilistic Models aim to learn the data distribution itself. Score-Based Models ($s_\theta(\vec{x})$) aim to learn the score of the data distribution. Therefore no further steps are needed: \hyperref[equ:4.2]{Equ.\,4.2} is the objective of Score-Based (Generative) Models. However there are some refining steps left as \hyperref[equ:4.2]{Equ.\,4.2} is still not readily usable for leaning score-models because the data distribution $p_{data}(\vec{x})$ is unknown and so is $\nabla_{\vec{x}}\log p_{data}(\vec{x})$. 
 
 %To use \cref{equ:3.2} as an objective it is first transformed to $L(\theta)=J(\theta)+C$ where $C$ is just a constant and $J(\theta)$ is given as
 %
@@ -35,97 +35,97 @@ Probabilistic Models aim to learn the data distribution itself. Score-Based Mode
 %\end{equation}
 %
 %A constant is negligible for a minimization task and the issue with the unknown data distribution has been resolved by introducing the trace $\text{tr}(\cdot)$. The problem with \cref{equ:3.3} is that it is not usable for deep networks and high dimensional data due to the expensive computation of $\text{tr}(\Delta_{\vec{x}}s_\theta(\vec{x}))$. 
-To tackle this problem \textit{Denoising Score Matching} \cite{denoise_score} was proposed. Denoising Score Matching introduces noise to \cref{equ:3.2} so that $\nabla_{\vec{x}}$ does not operate directly on the unknown distribution. A noise distribution $q_\sigma(\tilde{\vec{x}}|\vec{x})$ is applied to the data distribution to get a perturbed data distribution $q_\sigma(\vec{x})=\int q_\sigma(\tilde{\vec{x}}|\vec{x})p_{data}(\vec{x})d\vec{x}$. When the noise is small ($q_\sigma(\vec{x})\approx p_{data}(\vec{x})$) then $s_\theta(\vec{x})=\nabla_{\vec{x}}\log q_\sigma(\vec{x})\approx\nabla_{\vec{x}}\log p_{data}(\vec{x})$ holds true. The objective of Denoising Score Matching follows as
+To tackle this problem \textit{Denoising Score Matching} \cite{denoise_score} was proposed. Denoising Score Matching introduces noise to \hyperref[equ:4.2]{Equ.\,4.2} so that $\nabla_{\vec{x}}$ does not operate directly on the unknown distribution. A noise distribution $q_\sigma(\tilde{\vec{x}}|\vec{x})$ is applied to the data distribution to get a perturbed data distribution $q_\sigma(\vec{x})=\int q_\sigma(\tilde{\vec{x}}|\vec{x})p_{data}(\vec{x})d\vec{x}$. When the noise is small ($q_\sigma(\vec{x})\approx p_{data}(\vec{x})$) then $s_\theta(\vec{x})=\nabla_{\vec{x}}\log q_\sigma(\vec{x})\approx\nabla_{\vec{x}}\log p_{data}(\vec{x})$ holds true. The objective of Denoising Score Matching follows as
 %
-\begin{equation} \label{equ:3.3}
+\begin{equation} \label{equ:4.3}
     \theta^*=\underset{\theta}{\arg\min}\frac{1}{2}\mathbb{E}_{q_\sigma(\tilde{\vec{x}}\lVert\vec{x})p_{data}(\vec{x})}[\norm{s_\theta(\vec{x})-\nabla_{\vec{x}}\log q_\sigma(\vec{x}\lVert\vec{x})}^2_2].
 \end{equation}
 %
-In conclusion \cref{equ:3.3} is the training objective for score based models that is further used throughout this thesis. Nevertheless there are also other Score Matching techniques such as \textit{Sliced Score Matching} \cite{song2019sliced} that could be used but it turns out that Denoising Score Matching is considerably faster. The objective of Score-Based Models (\cref{equ:3.2}) has several desirable properties which makes it a reasonable approach for a generative model. As shown above the objective does not rely on the intractable partition function $Z$. Therefore the objective is almost always tractable which has the implications that there is no special model architecture necessary. Furthermore the objective can be optimized without adversarial training (see GANs) making it easier and more stable to train. %TODO reference GAN section
+In conclusion \hyperref[equ:4.3]{Equ.\,4.3} is the training objective for score based models that is further used throughout this thesis. Nevertheless there are also other Score Matching techniques such as \textit{Sliced Score Matching} \cite{song2019sliced} that could be used but it turns out that Denoising Score Matching is considerably faster. The objective of Score-Based Models (\hyperref[equ:4.2]{Equ.\,4.2}) has several desirable properties which makes it a reasonable approach for a generative model. As shown above the objective does not rely on the intractable partition function $Z$. Therefore the objective is almost always tractable which has the implications that there is no special model architecture necessary. Furthermore the objective can be optimized without adversarial training (see GANs) making it easier and more stable to train. %TODO reference GAN section
 
-\subsection{Langevin Dynamics} \label{sec:3.1.2}
-As described in \cref{sec:3.1.1} a score-model is tasked to estimate the score of the unknown data distribution $p_{data}(\vec{x})$ of a dataset. However the score of a distribution is not yet a generated image. Instead as it is the \textit{gradient} of the (log) data distribution it can be utilized to sample from $p_{data}(\vec{x})$ by transforming a value $\tilde{\vec{x}}_0$ of a prior distribution $\pi(\vec{x})$ to be part of the data distribution, following the gradient (the score) of the data distribution. There are some restrictions to what the prior distribution should look like but for the considerations of score-based models the prior distribution is just Gaussian noise, so $\pi(\vec{x})\sim\mathcal{N}(\vec{x}, \vec{0}, \vec{I})$.
+\subsection{Langevin Dynamics} \label{sec:4.1.2}
+As described in \hyperref[sec:4.1.1]{Sec.\,4.1.1} a score-model is tasked to estimate the score of the unknown data distribution $p_{data}(\vec{x})$ of a dataset. However the score of a distribution is not yet a generated image. Instead as it is the \textit{gradient} of the (log) data distribution it can be utilized to sample from $p_{data}(\vec{x})$ by transforming a value $\tilde{\vec{x}}_0$ of a prior distribution $\pi(\vec{x})$ to be part of the data distribution, following the gradient (the score) of the data distribution. There are some restrictions to what the prior distribution should look like but for the considerations of score-based models the prior distribution is just Gaussian noise, so $\pi(\vec{x})\sim\mathcal{N}(\vec{x}, \vec{0}, \vec{I})$.
 
 The process used for sampling is based on \textit{Langevin Dynamics}, a concept from physics, that was adopted to machine learning \cite{langevin1, langevin2}. In Physics the \textit{Langevin Equation} describes particles moving in a potential which additionally are subject to random forces. This process is called Brownian motion. The Langevin equation reads as 
 %
-\begin{equation} \label{equ:3.4}
+\begin{equation} \label{equ:4.4}
     \lambda \frac{\vec{x}(t)}{dt}=-\nabla V(\vec{x}(t))+\vec{\eta}(t),
 \end{equation}
 %
-where $V$ is the potential the particle is moving in, $\vec{x}(t)$ is the particles position and $\vec{\eta}(t)$ is white noise. Commonly \cref{equ:3.4} is written as an (Itô)-Stochastical Differential Equation (SDE)
+where $V$ is the potential the particle is moving in, $\vec{x}(t)$ is the particles position and $\vec{\eta}(t)$ is white noise. Commonly \hyperref[equ:4.4]{Equ.\,4.4} is written as an (Itô)-Stochastical Differential Equation (SDE)
 %
-\begin{equation} \label{equ:3.5}
+\begin{equation} \label{equ:4.5}
     d\vec{x}(t)=\underbrace{-\nabla V(\vec{x}(t))\,dt}_\text{drift term}+\underbrace{\sqrt{2}\,d\vec{w}}_\text{diffusion term}
 \end{equation}
 %
-with a drift term and a diffusion term. $\vec{w}$ denotes the \textit{Wiener Process} which can be interpreted as the derivative of white noise. It is important to note that the positions of particles described by \cref{equ:3.5} are distributed according to some probability density function $p(\vec{x})$ for all times $t\geq0$. This has some very useful consequences: We can choose the potential $V$ in such a way that the underlieing probability density function is $p_{data}$. In this case we can sample from $p_{data}$.
+with a drift term and a diffusion term. $\vec{w}$ denotes the \textit{Wiener Process} which can be interpreted as the derivative of white noise. It is important to note that the positions of particles described by \hyperref[equ:4.5]{Equ.\,4.5} are distributed according to some probability density function $p(\vec{x})$ for all times $t\geq0$. This has some very useful consequences: We can choose the potential $V$ in such a way that the underlieing probability density function is $p_{data}$. In this case we can sample from $p_{data}$.
 
-To achieve the state where the positions particle described by the Langevin Equation are distributed by $p_{data}$ we have to choose $V(\vec{x})=-\log p_{data}({\vec{x}})$. Inserting $V(\vec{x})$ into \cref{equ:3.5} results in
+To achieve the state where the positions particle described by the Langevin Equation are distributed by $p_{data}$ we have to choose $V(\vec{x})=-\log p_{data}({\vec{x}})$. Inserting $V(\vec{x})$ into \hyperref[equ:4.5]{Equ.\,4.5} results in
 %
-\begin{equation} \label{equ:3.6}
+\begin{equation} \label{equ:4.6}
     d\vec{x}(t)=\nabla\log p_{data}(\vec{x})dt+\sqrt{2}\,d\vec{w}.
 \end{equation}
 %
-Now the connection between Sampling with Langevin Dynamics and Score Matching (\cref{sec:3.1.1}) can be seen. If the score of the data distribution is known we can sample from this distribution by using \cref{equ:3.6}. For now $\vec{x}(t)$ was the position of a physical particle but \cref{equ:3.6} is applicable for any $d$-dimensional data $\vec{x}(t)\in\mathbb{R}^d$, e.g. images. To use \cref{equ:3.6} in the context of machine learning a discretized version of the SDE is used:
+Now the connection between Sampling with Langevin Dynamics and Score Matching (\hyperref[sec:4.1.1]{Sec.\,4.1.1}) can be seen. If the score of the data distribution is known we can sample from this distribution by using \hyperref[equ:4.6]{Equ.\,4.6}. For now $\vec{x}(t)$ was the position of a physical particle but \hyperref[equ:4.6]{Equ.\,4.6} is applicable for any $d$-dimensional data $\vec{x}(t)\in\mathbb{R}^d$, e.g. images. To use \hyperref[equ:4.6]{Equ.\,4.6} in the context of machine learning a discretized version of the SDE is used:
 %
-\begin{equation} \label{equ:3.7}
+\begin{equation} \label{equ:4.7}
     \tilde{\vec{x}}_t=\tilde{\vec{x}}_{t-1}+\frac{\epsilon}{2}\nabla_{\vec{x}}\log p_{data}(\tilde{\vec{x}}_{t-1})+\sqrt{\epsilon}\,\vec{z}_t
 \end{equation}
 %
 This equation is a recursive algorithm that can be used to sample from $p_{data}$. Here $\tilde{\vec{x}}_0$ is a value from the prior distribution given above and the $\sim$ above the $\vec{x}$ shows that $\tilde{\vec{x}}$ is not in dataset nor described by the data distribution $p_{data}(\vec{x})$ but a random initial sample. Furthermore $z_t\sim\mathcal{N}(0, I)$ is Gaussian noise and $\epsilon$ is the step size of the algorithm. The sample after $T$ steps is a perfect sample of $p_{data}$ when $T\rightarrow\infty$ and $\epsilon\rightarrow0$. For application of this algorithm $T\gg0$ and $\epsilon\ll1$ are assumed.
 
-Recapitulating what the algorithm does one can look at \cref{fig:3.1}. The lines in the left image show a particle moving randomly according to \cref{equ:3.5}. In the background the underlieing (heartshaped) data density function  is represented and in the right image samples are shown, where each of the dots is an initial sample from the prior distribution that was transformed using \cref{equ:3.7}. When applying \cref{equ:3.7} to infinite values from the prior distribution this process can be thought of as transforming one distribution to another one. As a side-note, the formulation of this integrated process is given by the \textit{Fokker-Planck-Equation} – another important equation in physics. For the purposes of score-based models only a one-by-one application of \cref{equ:3.7} is needed, essentially transforming one image from a noise distribution to an image that looks like it belongs the data distribution of the target dataset.
+Recapitulating what the algorithm does one can look at \hyperref[fig:4.1]{Fig.\,4.1}. The lines in the left image show a particle moving randomly according to \hyperref[equ:4.5]{Equ.\,4.5}. In the background the underlieing (heartshaped) data density function  is represented and in the right image samples are shown, where each of the dots is an initial sample from the prior distribution that was transformed using \hyperref[equ:4.7]{Equ.\,4.7}. When applying \hyperref[equ:4.7]{Equ.\,4.7} to infinite values from the prior distribution this process can be thought of as transforming one distribution to another one. As a side-note, the formulation of this integrated process is given by the \textit{Fokker-Planck-Equation} – another important equation in physics. For the purposes of score-based models only a one-by-one application of \hyperref[equ:4.7]{Equ.\,4.7} is needed, essentially transforming one image from a noise distribution to an image that looks like it belongs the data distribution of the target dataset.
 %
-\begin{figure}[] \label{fig:3.1}
+\begin{figure}[] \label{fig:4.1}
     \centering
     \includegraphics[width=.8\textwidth]{Chapters/figures/langevin.PNG}
     \caption[Short-form caption]{Application of Langevin Dynamics sampling}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Hindrances of a na\"{i}ve applicaton} \label{sec:3.2}
-While this general concept looks quite appealing to use as a basis for a generative model, in it's na\"{i}ve application it will fail instantly. There are two hindrances preventing this na\"{i}ve application which both are fortunately bypassable by adding random noise to the data. This has also some consequences on Score Matching and Langevin Dynamics which will be discussed in \cref{sec:3.3}.
+\section{Hindrances of a na\"{i}ve applicaton} \label{sec:4.2}
+While this general concept looks quite appealing to use as a basis for a generative model, in it's na\"{i}ve application it will fail instantly. There are two hindrances preventing this na\"{i}ve application which both are fortunately bypassable by adding random noise to the data. This has also some consequences on Score Matching and Langevin Dynamics which will be discussed in \hyperref[sec:4.3]{Sec.\,4.3}.
 %
-\subsection{The manifold hypothesis} \label{sec:3.2.1}
-The problems in both \cref{sec:3.2.1} and \cref{sec:3.2.2} originate from a similar source: The data density of a dataset of real images. The manifold hypothesis states that real world high-dimensional data lies on low-dimensional manifolds embedded within the high-dimensional space which is called the ambient space. To further explain this hypothesis with an example one can imagine a dataset of black and white images, each image being $m\times n$ in size. The ambient space – the space of \textit{all} possible black and white images with that size – has therefore $m\times n$ dimensions. Datasets normaly do not contain all possible data of a kind which would make them useless but rather contain data that is very special, e.g. images of black and white cars. As there is some similarity in cars the data in such a dataset is assumed to only cover a small, connected volume in the high dimensional space. Mathematically this is called a manifold but it is not important to know this for understanding the hypothesis.
+\subsection{The manifold hypothesis} \label{sec:4.2.1}
+The problems in both \hyperref[sec:4.2.1]{Sec.\,4.2.1} and \hyperref[sec:4.2.2]{Sec.\,4.2.2} originate from a similar source: The data density of a dataset of real images. The manifold hypothesis states that real world high-dimensional data lies on low-dimensional manifolds embedded within the high-dimensional space which is called the ambient space. To further explain this hypothesis with an example one can imagine a dataset of black and white images, each image being $m\times n$ in size. The ambient space – the space of \textit{all} possible black and white images with that size – has therefore $m\times n$ dimensions. Datasets normaly do not contain all possible data of a kind which would make them useless but rather contain data that is very special, e.g. images of black and white cars. As there is some similarity in cars the data in such a dataset is assumed to only cover a small, connected volume in the high dimensional space. Mathematically this is called a manifold but it is not important to know this for understanding the hypothesis.
 
-With this hypothesis two problems arise for score-models as they are described above. First, the score $\nabla_{\vec{x}}\log p_{data}(\vec{x})$ is calculated in the whole ambient space, i.e. for all dimensions, not only for the lower dimensions of the manifold. This results in the score being undefined when $\vec{x}$ is confined to such a low dimensional manifold. Second, it was shown in \cite{score_matching_original} that the objective from \cref{equ:3.2} can only be used for defining a consistent score estimator when the data the data distribution describes has the same dimensionality than whole space.
+With this hypothesis two problems arise for score-models as they are described above. First, the score $\nabla_{\vec{x}}\log p_{data}(\vec{x})$ is calculated in the whole ambient space, i.e. for all dimensions, not only for the lower dimensions of the manifold. This results in the score being undefined when $\vec{x}$ is confined to such a low dimensional manifold. Second, it was shown in \cite{score_matching_original} that the objective from \hyperref[equ:4.2]{Equ.\,4.2} can only be used for defining a consistent score estimator when the data the data distribution describes has the same dimensionality than whole space.
 %
-\subsection{Low data density region}\label{sec:3.2.2}
+\subsection{Low data density region}\label{sec:4.2.2}
 A second problem that arises with the data distribution of a dataset of real data is that there is just not enough data to fully cover the data distribution. Recall that the data distribution is unknown and describes \textit{all} data of one kind. To make an example, if a model should learn to generate cars than the data distribution would contain \textit{all} images of cars one can imagine. Certainly we are not able to create a dataset containing images of all cars which in reverse means that the dataset most likely focuses on data that is particularly representative for the data the model should learn.
 
 This has some consequences for score estimation. For data distributions there are regions of high density, where a lot of data is expected. In datasets – as they try to represent the data distribution – most data should appear in this high density regions. But there are also low density regions where little or no data is available. In the car example from above this means that there might be a lot of images of blue or black cars but little or no images of yellow cars. In that regions of low density the score cannot be estimated as there is no data to learn from. In mathematical representation this means that when considering any region $\mathcal{R}\subset\mathbb{R}^d$ in a dataset $\{\vec{x}_i\}_{i=1}^N\overset{i.i.d}{\sim}p_{data}(\vec{x})$ such that $p_{data}(\mathcal{R})\approx0$ the intersection $\{\vec{x}_i\}_{i=1}^N\cap\mathcal{R}$ is often equal to the empty set $\varnothing$. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[Introducing noise to the data distribution]{Introducing noise to the data distribution%
-    \sectionmark{Introducing noise}} \label{sec:3.3}
+    \sectionmark{Introducing noise}} \label{sec:4.3}
 \sectionmark{Introducing noise}
-To mitigate the hindrances stated in \cref{sec:3.2.1} and \cref{sec:3.2.2} the data is perturbed with random Gaussian noise. For the problem in \cref{sec:3.2.1} adding small Gaussian noise to the data ensures that the perturbed data distribution has the same dimensionality than the whole space fixing the problem with the inconsistent score estimator. In addition the disturbed data distribution no longer concentrates on a low dimensional manifold so the score is now defined everywhere in ambient space.
+To mitigate the hindrances stated in \hyperref[sec:4.2.1]{Sec.\,4.2.1} and \hyperref[sec:4.2.2]{Sec.\,4.2.2} the data is perturbed with random Gaussian noise. For the problem in \hyperref[sec:4.2.1]{Sec.\,4.2.1} adding small Gaussian noise to the data ensures that the perturbed data distribution has the same dimensionality than the whole space fixing the problem with the inconsistent score estimator. In addition the disturbed data distribution no longer concentrates on a low dimensional manifold so the score is now defined everywhere in ambient space.
 
-The solution to the problem in \cref{sec:3.2.2} is similar but requires large Gaussian noise. This large noise perturbes the data distribution in such a way that low density regions in the original low density region are filled which makes it possible for the score-models to improve on learning the score in low density regions.
+The solution to the problem in \hyperref[sec:4.2.2]{Sec.\,4.2.2} is similar but requires large Gaussian noise. This large noise perturbes the data distribution in such a way that low density regions in the original low density region are filled which makes it possible for the score-models to improve on learning the score in low density regions.
 
 The idea is then to use multiple noise levels with decreasing magnitude to transform the maximum noise-perturbed data distribution via a sequence of lower noise-pertubated data distributions to the true (unnoised) data distribution. This idea provokes several changes for the score-model $s_\theta(\vec{x})$ and the Langevin Dynamics sampling procedure. 
 %
-\subsection{Noise Conditional Score Networks} \label{sec:3.3.1}
+\subsection{Noise Conditional Score Networks} \label{sec:4.3.1}
 As there is now a sequence of data distributions with decreasing noise the score-model no longer aims to learn the score of one data distribution but to jointly learn the score of all data distributions. The noise can be thought of as a another parameter besides the data $\vec{x}$. Such a model $s_\theta(\vec{x}, \sigma)$ is called a \textit{Noise Conditional Score Network} (NCSN) \cite{score_1}. In practice when giving the model a value $\vec{x}_\sigma$ from a noisy data distribution $q_{\sigma_i}(\vec{x})\triangleq\int p_{data}(\vec{t})\mathcal{N}(\vec{x}|\vec{t},\sigma_i^2I)d\vec{t}$ the noise $\sigma_i$ of this distribution is given as a second parameter to the model so it can learn the difference between various noise scales applied to data $\vec{x}$. The noise scales $\{\sigma_i\}_{i=1}^L$ are defined as a positive geometric series, i.e. $\frac{\sigma_1}{\sigma_2}=\dots=\frac{\sigma_{L-1}}{\sigma_L}$ where $\sigma_L$ denotes the smallest noise scale and $\sigma_1$ the largest noise scale. A high $\sigma_1$ was found to be significant for the diversity of the samples. However, a high $\sigma_1$ comes with the flaw of high computational expenses of Langevin Dynamics. \cite{score_2} shows that choosing $\sigma_1$ as the maximum Euclidean distance between all pairs of training data points is a good choice. In general, if the score-model is properly trained $\forall\sigma\in\{\sigma_i\}_{i=1}^L$ applies $s_\theta(\vec{x}, \sigma)\approx\nabla_{\vec{x}}\log q_\sigma(\vec{x})$, making $s_\theta(\vec{x},\sigma)$ a nearly perfect score estimator on all noise scales. 
 
-To achieve high quality samples the model architecture has to be well adapted to the task of noise-conditional Score Matching. As the output of the model is $\in\mathbb{R}^d$ when the input $\vec{x}\in\mathbb{R}^d$ the model architecture of NCSN as described in \cite{score_1} is build upon successful model architectures from dense semantic segmentation a.o. U-Net (\cref{sec:2.1.2}). However, since the implementation of NCSN dramatically changes when advancing to continuous noise scales in \cref{sec:3.4} a more accurate insight to NCSN architecture is first given in \cref{sec:2.4.?}.
+To achieve high quality samples the model architecture has to be well adapted to the task of noise-conditional Score Matching. As the output of the model is $\in\mathbb{R}^d$ when the input $\vec{x}\in\mathbb{R}^d$ the model architecture of NCSN as described in \cite{score_1} is build upon successful model architectures from dense semantic segmentation a.o. U-Net (\hyperref[sec:2.1.2]{Sec.\,2.1.2}). However, since the implementation of NCSN dramatically changes when advancing to continuous noise scales in \hyperref[sec:4.4]{Sec.\,4.4} a more accurate insight to NCSN architecture is first given in \hyperref[sec:]{sec:2.4.TODO}.
 
-In order to train a NCSN the objective of noise-conditional Score Matching must be known. The noise distributions get chosen as $q_\sigma(\tilde{\vec{x}}|\vec{x})=\mathcal{N}(\tilde{\vec{x}}|\vec{x},\sigma^2I)$; therefore $\nabla_{\tilde{\vec{x}}}\log q_\sigma(\tilde{\vec{x}}|\vec{x})=-\nicefrac{(\tilde{\vec{x}}|\vec{x})}{\sigma^2}$. For a given $\sigma\in\{\sigma_i\}_{i=1}^L$ the objective can be formulated as a adaption of \cref{equ:3.3}:
+In order to train a NCSN the objective of noise-conditional Score Matching must be known. The noise distributions get chosen as $q_\sigma(\tilde{\vec{x}}|\vec{x})=\mathcal{N}(\tilde{\vec{x}}|\vec{x},\sigma^2I)$; therefore $\nabla_{\tilde{\vec{x}}}\log q_\sigma(\tilde{\vec{x}}|\vec{x})=-\nicefrac{(\tilde{\vec{x}}|\vec{x})}{\sigma^2}$. For a given $\sigma\in\{\sigma_i\}_{i=1}^L$ the objective can be formulated as a adaption of \hyperref[equ:4.3]{Equ.\,4.3}:
 %
-\begin{equation} \label{equ:3.8}
+\begin{equation} \label{equ:4.8}
     \ell(\theta; \sigma)\triangleq\frac{1}{2}\mathbb{E}_{p_{data}(\vec{x})}\mathbb{E}_{\tilde{\vec{x}}\sim\mathcal{N}(\vec{x},\sigma^2I)}\left[\norm{s_\theta(\tilde{\vec{x}},\sigma)+\frac{\tilde{\vec{x}}-\vec{x}}{\sigma^2}}_2^2\right]
 \end{equation}
 % 
-To get one unified objective \cref{equ:3.8} is summed for all noise scales $\sigma\in\{\sigma_i\}_{i=1}^L$:
+To get one unified objective \hyperref[equ:4.8]{Equ.\,4.8} is summed for all noise scales $\sigma\in\{\sigma_i\}_{i=1}^L$:
 %
-\begin{equation} \label{equ:3.9}
+\begin{equation} \label{equ:4.9}
     \mathcal{L}(\theta;\{\sigma_i\}_{i=1}^L)\triangleq\frac{1}{L}\sum_{i=1}^L\lambda(\sigma_i)\ell(\theta;\sigma_i)
 \end{equation}
 %
-Here $\lambda(\sigma_i)>0$ is a coefficient function depending on $\sigma_i$. As it is advantageous when the scores of all levels of noise have roughly of the same order of magnitude and empirically it is observed that $\norm{s_\theta(\vec{x},\sigma)}_2\propto\nicefrac{1}{\sigma}$, $\lambda(\sigma)$ is chosen to be $\sigma^2$. With that choice the term $\lambda(\sigma_i)\ell(\theta;\sigma_i)$ in \cref{equ:3.9} is equal to $\sigma^2\ell(\theta;\sigma_i)=\frac{1}{2}\mathbb{E}[\norm{\sigma s_\theta(\tilde{\vec{x}},\sigma)+\frac{\tilde{\vec{x}}-\vec{x}}{\sigma^2}}_2^2]$. Because $\frac{\tilde{\vec{x}}-\vec{x}}{\sigma^2}\sim\mathcal{N}(0, I)$ and $\norm{\sigma s_\theta(\tilde{\vec{x}},\sigma)}\propto1$ it is easy to deduce that the order of magnitude of $\lambda(\sigma)\ell(\theta;\sigma)$ is independent of $\sigma$.
+Here $\lambda(\sigma_i)>0$ is a coefficient function depending on $\sigma_i$. As it is advantageous when the scores of all levels of noise have roughly of the same order of magnitude and empirically it is observed that $\norm{s_\theta(\vec{x},\sigma)}_2\propto\nicefrac{1}{\sigma}$, $\lambda(\sigma)$ is chosen to be $\sigma^2$. With that choice the term $\lambda(\sigma_i)\ell(\theta;\sigma_i)$ in \hyperref[equ:4.9]{Equ.\,4.9} is equal to $\sigma^2\ell(\theta;\sigma_i)=\frac{1}{2}\mathbb{E}[\norm{\sigma s_\theta(\tilde{\vec{x}},\sigma)+\frac{\tilde{\vec{x}}-\vec{x}}{\sigma^2}}_2^2]$. Because $\frac{\tilde{\vec{x}}-\vec{x}}{\sigma^2}\sim\mathcal{N}(0, I)$ and $\norm{\sigma s_\theta(\tilde{\vec{x}},\sigma)}\propto1$ it is easy to deduce that the order of magnitude of $\lambda(\sigma)\ell(\theta;\sigma)$ is independent of $\sigma$.
 %
-\subsection{Annealed Langevin Dynamics} \label{3.3.2}
-After introducing noice scales is is clear that also the Langevin Dynamics algorithm has to be adjusted. In \cref{sec:3.1.2} we saw that Langevin Dynamics transforms a sample $\tilde{\vec{x}}_0$ from a prior distribution $\pi(\vec{x})$ to a sample $\tilde{\vec{x}}_T$ from the target data distribution $p_{data}$ by applying $T$ steps of Langevin Dynamics algorithm (\cref{equ:3.7}). Now the goal remains the same but it is not possible to directly transform from the prior distribution to the data distribution because the score-model only knows the scores for certain noise levels. Instead \cref{equ:3.7} is applied $L$ times in a sequence, once for each noise distribution $q_\sigma(\vec{x})$. This means that starting from an initial sample $\tilde{\vec{x}}_0$ from a prior distribution that is perturbed with the maximum noise $\sigma_1$ – i.e. $\pi(\vec{x})\sim q_{\sigma_1}(\vec{x})$ – this sample is then transformed to be a sample of the noise distribution $q_{\sigma_{2}}(\vec{x})$. The procedure is then repeated by using the final sample $\tilde{\vec{x}}_T$ from the last step as the new initial sample $\tilde{\vec{x}}_0$ that is then be transformed to be a sample of the noise distribution $q_{\sigma_{3}}(\vec{x})$. After $L$ of such steps we therefore have a sample of $q_{\sigma_L}(\vec{x})\approx p_{data}(\vec{x})$. The final algorithm can be seen in \hyperref[alg:1]{Alg. 1}.
+\subsection{Annealed Langevin Dynamics} \label{4.3.2}
+After introducing noice scales is is clear that also the Langevin Dynamics algorithm has to be adjusted. In \hyperref[sec:4.1.2]{Sec.\,4.1.2} we saw that Langevin Dynamics transforms a sample $\tilde{\vec{x}}_0$ from a prior distribution $\pi(\vec{x})$ to a sample $\tilde{\vec{x}}_T$ from the target data distribution $p_{data}$ by applying $T$ steps of Langevin Dynamics algorithm (\hyperref[equ:4.7]{Equ.\,4.7}). Now the goal remains the same but it is not possible to directly transform from the prior distribution to the data distribution because the score-model only knows the scores for certain noise levels. Instead \hyperref[equ:4.7]{Equ.\,4.7} is applied $L$ times in a sequence, once for each noise distribution $q_\sigma(\vec{x})$. This means that starting from an initial sample $\tilde{\vec{x}}_0$ from a prior distribution that is perturbed with the maximum noise $\sigma_1$ – i.e. $\pi(\vec{x})\sim q_{\sigma_1}(\vec{x})$ – this sample is then transformed to be a sample of the noise distribution $q_{\sigma_{2}}(\vec{x})$. The procedure is then repeated by using the final sample $\tilde{\vec{x}}_T$ from the last step as the new initial sample $\tilde{\vec{x}}_0$ that is then be transformed to be a sample of the noise distribution $q_{\sigma_{3}}(\vec{x})$. After $L$ of such steps we therefore have a sample of $q_{\sigma_L}(\vec{x})\approx p_{data}(\vec{x})$. The final algorithm can be seen in \hyperref[alg:1]{Alg.\,1}.
 %
 \begin{algorithm} \label{alg:1}
     \DontPrintSemicolon
@@ -145,7 +145,7 @@ After introducing noice scales is is clear that also the Langevin Dynamics algor
 %
 Here $\alpha_i$ denotes the outer step size that is tuned down gradually by $\alpha_i=\epsilon\cdot\sigma_i^2/\sigma_L^2$. Since the noise distributions $\{\sigma_i\}_{i=1}^L$ are perturbed with Gaussian noise the scores encountered during sampling are all well defined. Also when $\sigma_1$ is sufficiently large there are less low density regions in $q_{\sigma_1}(\vec{x})$ preventing the algorithm to encounter regions where the score has not been learned due to a lack of training data.
 
-With the release of \cite{score_1} the authors found that their \textit{FID (Fréchet inception distance)} \cite{fid} scores – a metric for evaluating the quality of samples – was lower than state-of-the-art FID scores even though the samples looked better to human eyes. Thereupon \cite{score_4} found that the final sample generated by \hyperref[alg:1]{Alg. 1} contains some noise which is not visible to the human eye but noticeably decreases the FID score. To solve this problem they proposed to add an extra denoising step after the original Annealed Langevin Dynamics which significantly improves FID scores. This improved algorithm can be found in \hyperref[alg:2]{Alg. 2}.
+With the release of \cite{score_1} the authors found that their \textit{FID (Fréchet inception distance)} \cite{fid} scores – a metric for evaluating the quality of samples – was lower than state-of-the-art FID scores even though the samples looked better to human eyes. Thereupon \cite{score_4} found that the final sample generated by \hyperref[alg:1]{Alg.\,1} contains some noise which is not visible to the human eye but noticeably decreases the FID score. To solve this problem they proposed to add an extra denoising step after the original Annealed Langevin Dynamics which significantly improves FID scores. This improved algorithm can be found in \hyperref[alg:2]{Alg.\,2}.
 %
 \begin{algorithm} \label{alg:2}
     \DontPrintSemicolon
@@ -170,102 +170,102 @@ With the release of \cite{score_1} the authors found that their \textit{FID (Fr�
 \end{algorithm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[The way to continuous noise]{The way to continuous noise%
-    \sectionmark{Continuous Noise}} \label{sec:3.3}
+    \sectionmark{Continuous Noise}} \label{sec:4.3}
 \sectionmark{Continuous Noise}
-In \hyperref[sec:3.2]{Sec. 3.2} a sequence of discrete noise scales was used to perturb the data distribution. Although this score-model produced first visually appealing samples (\cite{score_1}), the training image and sample size of the model was limited to $\sim64\times64$. In Ref. \cite{score_2} $5$ techniques were proposed which allowed higher resolutions up to $256\times256$ in their application. Introducing a continuous noise instead of discrete noise scales allows for resolutions up to $1024\times1024$, a mathematically pleasant generalization of different Score-Based Models and creates the possibility for a lot more sampling methods than just Langevin Dynamics.
+In \hyperref[sec:4.2]{Sec.\,4.2} a sequence of discrete noise scales was used to perturb the data distribution. Although this score-model produced first visually appealing samples (\cite{score_1}), the training image and sample size of the model was limited to $\sim64\times64$. In Ref. \cite{score_2} $5$ techniques were proposed which allowed higher resolutions up to $256\times256$ in their application. Introducing a continuous noise instead of discrete noise scales allows for resolutions up to $1024\times1024$, a mathematically pleasant generalization of different Score-Based Models and creates the possibility for a lot more sampling methods than just Langevin Dynamics.
 %
-\subsection{Score-Based Generative Modeling with SDEs} \label{sec:3.4.1}
+\subsection{Score-Based Generative Modeling with SDEs} \label{sec:4.4.1}
 The discrete noise scales $\{\sigma_i\}_{i=1}^L$ are now replaced by a diffusion process $\{\vec{x}(t)\}_{t=0}^T$ indexed by a continuous time variable $t\in[0,T]$ that evolves according to a SDE. For the distribution $p_{data}$ of a dataset of i.i.d samples this means that $\vec{x}(0)\sim p_{data}(\vec{x})$ and $\vec{x}(T)\sim \pi(\vec{x})$ where $\pi(\vec{x})$ is a prior distribution that in \textit{completely independent} of $p_{data}$, e.g a Gaussian distribution with fixed mean and variance. The diffusion process can be modeled as the solution of the following (Itô) SDE:
 %
-\begin{equation} \label{equ:3.10}
+\begin{equation} \label{equ:4.10}
     d\vec{x}=\vec{f}(\vec{x},t)dt+g(t)d\vec{w}
 \end{equation}
 %
-In \hyperref[equ:3.10]{Equ. 10} the vector-valued function $\vec{f}(\cdot,t):\mathbb{R}^d\rightarrow\mathbb{R}^d$ is called the \textit{drift coefficient}, the scalar function $g(\cdot):\mathbb{R}\rightarrow\mathbb{R}$ is called the \textit{diffusion coefficient} and $\vec{w}$ denotes the \textit{Wiener process}. How the diffusion coefficient and the drift coefficient can be chosen such that $\vec{x}(t)$ diffuses to $\pi(\vec{x})$ is explained in \hyperref[sec:3.4.4]{Sec. 3.4.4}.
+In \hyperref[equ:4.10]{Equ.\,4.10} the vector-valued function $\vec{f}(\cdot,t):\mathbb{R}^d\rightarrow\mathbb{R}^d$ is called the \textit{drift coefficient}, the scalar function $g(\cdot):\mathbb{R}\rightarrow\mathbb{R}$ is called the \textit{diffusion coefficient} and $\vec{w}$ denotes the \textit{Wiener process}. How the diffusion coefficient and the drift coefficient can be chosen such that $\vec{x}(t)$ diffuses to $\pi(\vec{x})$ is explained in \hyperref[sec:4.4.4]{Sec.\,4.4.4}.
 
 The remarkable result \cite{ANDERSON} is that such a SDE has a reverse SDE that models a reverse time diffusion process, diffusing a sample $\vec{x}(T)\sim\pi(\vec{x})$ to $p_{data}(\vec{x})$:
 %
-\begin{equation} \label{equ:3.11}
+\begin{equation} \label{equ:4.11}
     d\vec{x}=[\vec{f}(\vec{x},t)-g(t)^2\nabla_{\vec{x}}\log p_t(\vec{x})]dt+g(t)d\vec{\Bar{w}}
 \end{equation}
 %
 Here $dt$ is an infinitesimal timestep backwards in time and $\vec{\Bar{w}}$ is the Wiener process running backwards in time. For the application of this reverse diffusion process it comes very hand that it only depends on the score $\nabla_{\vec{x}}\log p_t(\vec{x})$. So if the score of each noisy distribution $p_t(\vec{x})$ of $\vec{x}(t)$ ($t\in[0, T]$) is known it is possible to sample from $p_{data}$ by solving the reverse SDE.
 %
 \subsection{Denoising Diffusion Probabilistic Models}
-Denoising Diffusion Probabilistic Models (DDPM) \cite{ho2020denoising} are closely related to \textit{noncontinuous} NCSN (\hyperref[sec:3.3.1]{Sec. 3.3.1}). They very briefly will be presented here as they can be generalized together with NCSN to continuous NCSN (\hyperref[sec:3.4.3]{Sec. 3.4.3}, \hyperref[sec:3.4.4]{Sec. 3.4.4}). DDPMs are trained on Markov chains whose transitions are learned by the model to reverse a diffusion process by reversing the Markov chain. This will especially work if the diffusion consists of small amounts of Gaussian noise. The objective of such a models is given as 
+Denoising Diffusion Probabilistic Models (DDPM) \cite{ho2020denoising} are closely related to \textit{noncontinuous} NCSN (\hyperref[sec:4.3.1]{Sec.\,4.3.1}). They very briefly will be presented here as they can be generalized together with NCSN to continuous NCSN (\hyperref[sec:4.4.3]{Sec.\,4.4.3}, \hyperref[sec:4.4.4]{Sec.\,4.4.4}). DDPMs are trained on Markov chains whose transitions are learned by the model to reverse a diffusion process by reversing the Markov chain. This will especially work if the diffusion consists of small amounts of Gaussian noise. The objective of such a models is given as 
 %
-\begin{equation} \label{equ:3.12} 
+\begin{equation} \label{equ:4.12} 
     \theta^*=\underset{\theta}{\arg\min}\,\sum_{i=1}^N(1-\alpha_i)\mathbb{E}_{p_{data}(\vec{x})}\mathbb{E}_{p_{\alpha_i}(\tilde{\vec{x}}|\vec{x}})\left[\norm{s_\theta(\tilde{\vec{x}},i)-\nabla_{\tilde{\vec{x}}}\log p_{\alpha_i}(\tilde{\vec{x}}|\vec{x})}_2^2\right],
 \end{equation}
 %
 where $\alpha_i\triangleq\Pi_{j=1}^i(1-\beta_j)$ and $0<\beta_1<\beta_2,\dots,\beta_N<1$ are positive noise scales. The Markov chain $\{\vec{x}_i\}_{i=0}^N$ is constructed in such a way that the perturbation kernels $p(\vec{x}_i|\vec{x}_{i-1})=\mathcal{N}(\vec{x_i};\sqrt{1-\beta_i}\,\vec{x}_{i-1},\beta_i\vec{I})$. Starting with an initial sample $\tilde{\vec{x}}_N$ and a trained DDPM $s_\theta(\vec{x}_i, i)$ the following reverse Markov chain can be used to sample from $p_{data}$:
 %
-\begin{equation} \label{equ:3.13}
+\begin{equation} \label{equ:4.13}
     \vec{x}_{i-1}=\frac{1}{\sqrt{1-\beta_i}}(\vec{x}_i+\beta_is_\theta(\vec{x}_i,i))+\sqrt{\beta_i}\vec{z}_i,\quad i=N,N-1,\dots,1
 \end{equation}
 %
-\subsection{Generalizing the Score Matching objective} \label{sec:3.4.3}
-Like in the previous sections some adaptions to the objective of Score Matching have to be made. Without further mathematical derivation a continuous generalization of the previous objectives (\hyperref[equ:3.3]{Equ. 3.3}, \hyperref[equ:3.9]{Equ. 3.9}, \hyperref[equ:3.12]{Equ. 3.12}) is given as
+\subsection{Generalizing the Score Matching objective} \label{sec:4.4.3}
+Like in the previous sections some adaptions to the objective of Score Matching have to be made. Without further mathematical derivation a continuous generalization of the previous objectives (\hyperref[equ:4.3]{Equ.\,4.3}, \hyperref[equ:4.9]{Equ.\,4.9}, \hyperref[equ:4.12]{Equ.\,4.12}) is given as
 %
-\begin{equation} \label{equ:3.14}
+\begin{equation} \label{equ:4.14}
     \theta^*=\underset{\theta}{\arg\min}\,\mathbb{E}_t\left\{\lambda(t)\mathbb{E}_{\vec{x}(0)}\mathbb{E}_{\vec{x}(t)|\vec{x}(0)}\left[\norm{s_\theta(\vec{x}(t),t)-\nabla_{\vec{x}(t)}\log p_{0t}(\vec{x}(t)|\vec{x}(0))}_2^2\right]\right\}.
 \end{equation}
 %
-$\lambda(t):[0,T]\rightarrow\mathbb{R}_{>0}$ is a positive weighting function. Similarly to the weighing function in \hyperref[equ:3.9]{Equ. 3.9} it is chosen in a way such that the magnitude of the score is independent of the noise – here characterized by $t$ – which implies a choice of the form $\lambda\propto 1/\mathbb{E}\norm{\nabla_{\vec{x}(t)}\log p_{0t}(\vec{x}(t)|\vec{x}(0))}_2^2$.
+$\lambda(t):[0,T]\rightarrow\mathbb{R}_{>0}$ is a positive weighting function. Similarly to the weighing function in \hyperref[equ:4.9]{Equ.\,4.9} it is chosen in a way such that the magnitude of the score is independent of the noise – here characterized by $t$ – which implies a choice of the form $\lambda\propto 1/\mathbb{E}\norm{\nabla_{\vec{x}(t)}\log p_{0t}(\vec{x}(t)|\vec{x}(0))}_2^2$.
 
-Moreover note the similarities of this objective with the one in \hyperref[equ:3.3]{Equ. 3.3}. The objective in general is now dependent on $t$ and the discrete noise distributions have been replaced by transition kernels $p_{st}(\vec{x}(t)|\vec{x}(s))$ describing a transition from $\vec{x}(s)$ to $\vec{x}(t)$ where $0\leq s \leq t \leq T$.
-\subsection{VE and VP SDEs} \label{sec:3.4.4}
-In general there is are infinite ways to choose $\vec{f}(\vec{x}(t),t)$ and $g(t)$ in \hyperref[equ:3.10]{Equ. 10}. Having said that, there are two especially interesting ways to choose the drift coefficient $\vec{f}$ and the diffusion coefficient $g$. It is namely that the noise pertubations used in SMLD and DDPM correspond to discretizations of two SDEs. With that knowledge the concepts of SMLD and DDPM can be transformed to two different implementations of the continuous noise model.
+Moreover note the similarities of this objective with the one in \hyperref[equ:4.3]{Equ.\,4.3}. The objective in general is now dependent on $t$ and the discrete noise distributions have been replaced by transition kernels $p_{st}(\vec{x}(t)|\vec{x}(s))$ describing a transition from $\vec{x}(s)$ to $\vec{x}(t)$ where $0\leq s \leq t \leq T$.
+\subsection{VE and VP SDEs} \label{sec:4.4.4}
+In general there is are infinite ways to choose $\vec{f}(\vec{x}(t),t)$ and $g(t)$ in \hyperref[equ:4.10]{Equ.\,4.10}. Having said that, there are two especially interesting ways to choose the drift coefficient $\vec{f}$ and the diffusion coefficient $g$. It is namely that the noise pertubations used in SMLD and DDPM correspond to discretizations of two SDEs. With that knowledge the concepts of SMLD and DDPM can be transformed to two different implementations of the continuous noise model.
 
 For SMLD perturbation kernels of the form $p_{\sigma_i}(\tilde{\vec{x}}|\vec{x})=\mathcal{N}(\tilde{\vec{x}}|\vec{x},\sigma^2\vec{I})$ with $i\in\{1,\dots,N\}$ are deployed. Applying these perturbation kernels in series on a variable $\vec{x}$ can be written as the following Markov chain:
 %
-\begin{equation} \label{equ:3.15}
+\begin{equation} \label{equ:4.15}
     \vec{x}_i=\vec{x}_{i-1}+\sqrt{\sigma_i^2-\sigma_{i-1}^2}\vec{z}_{i-1},
 \end{equation}
 %
-where $\vec{z}_{i-1}\sim\mathcal{N}(\vec{0},\vec{I})$. $\vec{x}_0\sim p_{data}$ and to make things easier $\sigma_0$ is chosen as $0$. $\vec{x}_i$, $\sigma_i$ and $z_i$ are now reformulated as $\vec{x}(\nicefrac{i}{N})$, $\sigma(\nicefrac{i}{N})$ for $z(\nicefrac{i}{N})$ for $i=1,2,\dots,N$. With $\Delta t=\nicefrac{1}{N}$ and $t\in\{0,\nicefrac{1}{N},\dots,\nicefrac{N-1}{N}\}$ \hyperref[equ:3.15]{Equ. 3.15} can be rewritten as
+where $\vec{z}_{i-1}\sim\mathcal{N}(\vec{0},\vec{I})$. $\vec{x}_0\sim p_{data}$ and to make things easier $\sigma_0$ is chosen as $0$. $\vec{x}_i$, $\sigma_i$ and $z_i$ are now reformulated as $\vec{x}(\nicefrac{i}{N})$, $\sigma(\nicefrac{i}{N})$ for $z(\nicefrac{i}{N})$ for $i=1,2,\dots,N$. With $\Delta t=\nicefrac{1}{N}$ and $t\in\{0,\nicefrac{1}{N},\dots,\nicefrac{N-1}{N}\}$ \hyperref[equ:4.15]{Equ.\,4.15} can be rewritten as
 %
-\begin{equation} \label{equ:3.16}
+\begin{equation} \label{equ:4.16}
     \vec{x}(t+\Delta t)=\vec{x}(t)+\sqrt{\sigma^2(t+\Delta t)-\sigma^2(t)}\,\vec{z}(t).
 \end{equation}
 %
-With the assumption $\Delta t \ll 1$ \hyperref[equ:3.16]{Equ. 3.16} can be approximated as 
+With the assumption $\Delta t \ll 1$ \hyperref[equ:4.16]{Equ.\,4.16} can be approximated as 
 %
-\begin{equation} \label{equ:3.17}
+\begin{equation} \label{equ:4.17}
     \vec{x}(t+\Delta t)=\vec{x}(t)+\sqrt{\frac{d\sigma^2(t)}{dt}\Delta t}\,\vec{z}(t).
 \end{equation}
 %
-In the limit of $\Delta t\rightarrow 0$ (continuous), \hyperref[equ:3.17]{Equ. 3.17} converges to 
+In the limit of $\Delta t\rightarrow 0$ (continuous), \hyperref[equ:4.17]{Equ.\,4.17} converges to 
 %
-\begin{equation} \label{equ:3.18}
+\begin{equation} \label{equ:4.18}
     d\vec{x}=\sqrt{\frac{d\sigma^2(t)}{dt}}\,d\vec{w}.
 \end{equation}
 %
-This SDE is called the \textit{VE SDE} and describes the continuous stochastic process $\{\vec{x}(t)\}_{t=0}^1$ of the former discrete Markov chain $\{\vec{x}_i\}_{i=1}^N$. In the representation of \hyperref[equ:3.10]{Equ. 10} this means that $\vec{f}(\vec{x},t)=0$ and $g(t)=\sqrt{\frac{d\sigma^2(t)}{dt}}$.
+This SDE is called the \textit{VE SDE} and describes the continuous stochastic process $\{\vec{x}(t)\}_{t=0}^1$ of the former discrete Markov chain $\{\vec{x}_i\}_{i=1}^N$. In the representation of \hyperref[equ:4.10]{Equ.\,4.10} this means that $\vec{f}(\vec{x},t)=0$ and $g(t)=\sqrt{\frac{d\sigma^2(t)}{dt}}$.
 
 Using the same procedure also the perturbation kernels of DDPM can be transformed to a continuous stochastic process leading to
 %
-\begin{equation} \label{equ:3.19}
+\begin{equation} \label{equ:4.19}
     d\vec{x}=-\frac{1}{2}\beta(t)\vec{x}\,dt+\sqrt{\beta(t)}\,d\vec{w},
 \end{equation}
 %
 which is called the \textit{VP SDE}. The names VE and VP originate from the observations that the VE SDE always gives a process with \textbf{E}xploding \textbf{V}ariance whist the VP SDE yields a process with fixed variance, therefore \textbf{P}reserving the initial \textbf{V}ariance. As the VE SDE is better suited to produce high resolution images and is easier to implement we exclusively use the VE SDE in our experiments.
 
 \subsection{Sampling via the Reverse SDE}
-As mentioned in \hyperref[sec:3.4.1]{Sec. 3.4.1}, samples of $p_{data}$ can be generated by solving the reverse SDE. In order to do so the scores $\nabla_{\vec{x}}\log p_t(\vec{x})$ are needed which are provided by the trained score-model $s_\theta(\vec{x}(t),t)$. In theory to solve the reverse SDE any kind of numerical SDE solver can be used. In practice, however, it was determined that most off-the-shelf SDE solvers are ill-suited for generative modeling \cite{gotta_go_fast}. These off-the-shelf SDE solvers often exhibit divergence, slow data generation and worse quality than than the specialized SDE solvers proposed beneath.
+As mentioned in \hyperref[sec:4.4.1]{Sec.\,4.4.1}, samples of $p_{data}$ can be generated by solving the reverse SDE. In order to do so the scores $\nabla_{\vec{x}}\log p_t(\vec{x})$ are needed which are provided by the trained score-model $s_\theta(\vec{x}(t),t)$. In theory to solve the reverse SDE any kind of numerical SDE solver can be used. In practice, however, it was determined that most off-the-shelf SDE solvers are ill-suited for generative modeling \cite{gotta_go_fast}. These off-the-shelf SDE solvers often exhibit divergence, slow data generation and worse quality than than the specialized SDE solvers proposed beneath.
 
 \subsubsection{Predictor Corrector samplers}
-The first sampling strategy - which is also the one we use for all experiments – consists of a predictor and a corrector. This category of samples is therefore is called \textit{Predictor-Corrector Samplers} \cite{score_3}. The sampler works in such a way that the predictor gives an estimate of the sample at the next step and the corrector corrects this estimated sample. The idea to use a combination of a predictor and a corrector instead solely using a SDE solver comes from the realization that we have additional information in the reverse SDE (\hyperref[equ:3.11]{Equ. 3.11}): the score. We have seen in \hyperref[sec:3.3.2]{Sec. 3.3.2} that the score can be used to sample from $p_{data}$, so we know how to process this extra information which is normally not available when solving arbitrary SDEs. In the implementation a variation of Langevin Dynamics samplers plays the role of the corrector and and a numerical SDE solver plays the role of the predictor.
+The first sampling strategy - which is also the one we use for all experiments – consists of a predictor and a corrector. This category of samples is therefore is called \textit{Predictor-Corrector Samplers} \cite{score_3}. The sampler works in such a way that the predictor gives an estimate of the sample at the next step and the corrector corrects this estimated sample. The idea to use a combination of a predictor and a corrector instead solely using a SDE solver comes from the realization that we have additional information in the reverse SDE (\hyperref[equ:4.11]{Equ.\,4.11}): the score. We have seen in \hyperref[sec:4.3.2]{Sec.\,4.3.2} that the score can be used to sample from $p_{data}$, so we know how to process this extra information which is normally not available when solving arbitrary SDEs. In the implementation a variation of Langevin Dynamics samplers plays the role of the corrector and and a numerical SDE solver plays the role of the predictor.
 
-The authors of \cite{score_3} propose to use the \textit{Euler-Maruyama Method} as the SDE solver which is a very simple method to numerically solve SDEs and is based on the well known Euler method for solving ordinary differential equations (ODEs). For a general SDE (\hyperref[equ:3.10]{Equ. 3.10}) the Euler-Maruyama method computes the evolution of $\vec{x}$ as the following recursive formula:
+The authors of \cite{score_3} propose to use the \textit{Euler-Maruyama Method} as the SDE solver which is a very simple method to numerically solve SDEs and is based on the well known Euler method for solving ordinary differential equations (ODEs). For a general SDE (\hyperref[equ:4.10]{Equ.\,4.10}) the Euler-Maruyama method computes the evolution of $\vec{x}$ as the following recursive formula:
 %
-\begin{equation} \label{equ:3.20}
+\begin{equation} \label{equ:4.20}
     \vec{x}_i=\vec{x}_{i-1}+\tau\vec{f}(\vec{x}_{i-1}, t_{i-1})+g(\vec{x}_{i-1}, t_{i-1})\vec{z_{i-1}},
 \end{equation}
 %
-where $\tau$ is the step size defined as $\tau=\frac{T}{i}$, $\vec{z}_{i-1}\sim\mathcal{N}(\vec{0},\vec{I})$, $i=0,\dots,N$ and $0=t_0<t_1<\dots<t_n=T$ is the discretization of time $t$. We have seen such a discretization of a SDE before in \hyperref[equ:3.15]{Equ. 3.15}. From this realization follow two points: First, the discretization in \hyperref[equ:3.15]{Equ. 3.15} is called Euler-Maruyama discretization and second, the Euler-Maruyama discretization is a Markov chain.
+where $\tau$ is the step size defined as $\tau=\frac{T}{i}$, $\vec{z}_{i-1}\sim\mathcal{N}(\vec{0},\vec{I})$, $i=0,\dots,N$ and $0=t_0<t_1<\dots<t_n=T$ is the discretization of time $t$. We have seen such a discretization of a SDE before in \hyperref[equ:4.15]{Equ.\,4.15}. From this realization follow two points: First, the discretization in \hyperref[equ:4.15]{Equ.\,4.15} is called Euler-Maruyama discretization and second, the Euler-Maruyama discretization is a Markov chain.
 
-The full predictor-corrector algorithm using Langevin Dynamics and the Euler-Maruyama method can be seen in \hyperref[alg:3]{Alg. 3}. In this algorithm $N$ denotes the number of sampling steps and $snr$ is the signal-to-noise-ratio of Langevin Dynamics which has a large effect on sampling quality and is chosen to be between $\sim0.15$ and $\sim0.075$ depending on the sampling resolution. 
+The full predictor-corrector algorithm using Langevin Dynamics and the Euler-Maruyama method can be seen in \hyperref[alg:3]{Alg.\,3}. In this algorithm $N$ denotes the number of sampling steps and $snr$ is the signal-to-noise-ratio of Langevin Dynamics which has a large effect on sampling quality and is chosen to be between $\sim0.15$ and $\sim0.075$ depending on the sampling resolution. 
 %
 \begin{algorithm} \label{alg:3}
     \DontPrintSemicolon
@@ -290,7 +290,7 @@ The full predictor-corrector algorithm using Langevin Dynamics and the Euler-Mar
 %
 This sampling strategy is based upon the mathematical finding that every diffusion process has a corresponding \textit{deterministic process} which is governed by the following \textit{ODE}:
 %
-\begin{equation} \label{equ:3.21}
+\begin{equation} \label{equ:4.21}
     d\vec{x}=\left[\vec{f}(\vec{x},t)-\frac{1}{2}g(t)^2\nabla_{\vec{x}}\log p_t(\vec{x})\right]dt
 \end{equation}
 %
@@ -302,67 +302,7 @@ This ODE has some neat mathematical features which will not be discussed here du
 %
 There were also other sampling methods proposed of which we want to name a few. \textit{Reverse Diffusion Samplers} were proposed in \cite{score_3} together with Predictor-Corrector samplers and Probability Flow samples and are a kind of numerical SDE solvers which discretize the reverse SDE in the same way the forward SDE is discretized.
 
-A really promising sampler was proposed as a result of an in-depth sampler analysis and a lot of finetuning in \cite{gotta_go_fast}. These samplers are non-general-purpose SDE solvers which means they are specially tailored to solve the SDE in \hyperref[equ:3.10]{Equ. 3.10}. This results in sampling speeds $2-10$ times higher than all other mentioned samplers and also in higher sampling quality. However, since this sampler was was published only shortly from our final deadline, we were not able to implement and test it properly.
+A really promising sampler was proposed as a result of an in-depth sampler analysis and a lot of finetuning in \cite{gotta_go_fast}. These samplers are non-general-purpose SDE solvers which means they are specially tailored to solve the SDE in \hyperref[equ:4.10]{Equ.\,4.10}. This results in sampling speeds $2-10$ times higher than all other mentioned samplers and also in higher sampling quality. However, since this sampler was was published only shortly from our final deadline, we were not able to implement and test it properly.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Improvements and Adaptations}
-\subsection{Mixed precision learning} %0.5-1
-vRAM usage and training speed are key aspects in training deep neural network. Complex models might consist of several million up to billion parameters to optimize. This requires an immense amount of computing power but at least equally important, vRAM. vRAM – videa random access memory – is the memory that a GPU has available during operation. Modern high end consumer graphic cards typically have around $10GB$ of vRam. The crux of the matter is that reaching more than $10GB$ when training a moderatly complex model is really easy and when training such complex models as NCSNs, the vRAM demand can increase beyond $100GB$ making training deep neural networks a very cost intensive business. Also when training complex models one can expect to need one week or more of training time making testing and finetuning of models very exhausting.
-
-To mitigate these problems the concept of \textit{Mixed Precision Learning} \cite{mixed_prec} was developed, decreasing both vRAM usage and training time with simultaneous retention of training quality, i.e. training loss. Normally each parameter of a network is stored as a float with $32bits$ of precision. Considering a network with $\sim250M$ parameters this would be equivalent to $\sim1GB$. What sounds not so much at first quickly becomes unmanageable when thinking of the series of matrix arithmetic's the parameters undergo and each calculation storing extra data such as gradients. 
-
-The idea of mixed precision learning is to use floats with a $16bit$ precision wherever possible. In order to not loose model accuracy two concepts are applied. First, there is always a $32bit$ master copy of the model weights. For the forward pass this master copy is converted to $16bit$ where the complex gradient calculations happen. In the backward pass these $16bit$ gradients are converted back to $32bit$ where they are then used by the optimizer to update the master weights. But this improvement during gradient calculation comes with the flaw of loosing some gradients as every number $<2^{-24}$ is equal to $0$ for $16bit$ precision but in most models there is at least some relevant gradient information in the range $[2^{-27},2^{-24})$. To mitigate this effect the concept of loss scaling was proposed. Loss scaling multiplies the $32bit$ loss after the forward pass by a scale factor to move them in the $16bit$ range in which the gradients are then computed in the backward pass. Thereafter the scaled $16bit$ gradients are converted to scaled $32bit$ gradients and then divided by the same scale factor as before. Finally these scaled gradients are used by the optimizer to update the master weights. The full concept can be seen in \hyperref[fig:3.2]{Fig. 3.2}.
-%
-\begin{figure}[] \label{fig:3.2}
-    \centering
-    \includegraphics[width=.9\textwidth]{Chapters/figures/mixed_prec.PNG}
-    \caption[Short-form caption]{Concept of Mixed Precision}
-\end{figure}
-%
-
-As the mixed precision technique was not used in the original SGM paper \cite{score_3} it was now implemented using the off the shelf pyTorch tools for mixed precision to check how much this technique improves vRAM usage and training time for the NCSN. To do so the NCSN was trained on the Cityscapes dataset on two different GPUs with the same model settings. For each GPU $2\times100$ epochs were passed, once with mixed precision on and once with mixed precision off. The first GPU was a \textit{Nvidia GeForce RTX 2080 Ti} with $11GB$ of vRAM and the second GPU was a \textit{Nvidia A100} with $40GB$ of vRAM. For both GPUs we used the maximum possible batch size for non mixed precision training which is $1$ for the RTX 2080 Ti and $5$ for the A100. The effects of mixed precision training on vRAM usage and training time can be seen in \hyperref[tab:3.1]{Tab. 3.1} resp. \hyperref[tab:3.1]{Tab. 3.2}. For the vRAM usage the total vRAM needed is shown and for the training time the average training time for one epoch is shown.
-%
-\begin{table}[] \label{tab:3.1}
-        \centering
-    \begin{tabular}{c|c|c}
-        GPU type        & Mixed precision \textbf{Off}    & Mixed precision \textbf{On} \\
-        \hline
-        RTX 2080 Ti     &  7791MB               & 7367MB\\
-        A100            &  39039MB              & 29481MB
-    \end{tabular}
-    \caption{vRAM usage w/ and w/o mixed precision}
-\end{table}
-\begin{table}[b] \label{tab:3.2}
-        \centering
-    \begin{tabular}{c|c|c}
-        GPU type        & Mixed precision \textbf{Off}    & Mixed precision \textbf{On} \\
-        \hline
-        RTX 2080 Ti     &  1494s                & 1206s    \\
-        A100            &  965s                 & 987s
-    \end{tabular}
-    \caption{Training time per epoch w/ and w/o mixed precision}
-\end{table}
-
-For the A100 serious improvements on vRAM usage can be observed. For the RTX 2080 Ti there are only little improvements for vRAM usage but good improvements on training time. In general mixed precision is expected to perform way better on the new Ampere GPU
-architecture (A100) than on the older Turing GPU architecture (RTX 2080 Ti). To ensure that the training quality does not suffer from the use of mixed precision the loss curves for all test setups are compared in \hyperref[fig:3.3]{Fig. 3.3}. The higher fluctuations for the RTX 2080 Ti are due to the fact that the batch size is smaller, therefore leading to major loss differences in a batch-to-batch comparison. In general it can be seen that mixed precision has no notable effect on training loss. Also a qualitative comparison of generated samples shows no difference perceptible by a human. We therefore conclude that – at least for non FID record breaking attempts – mixed precision should be used and we do so for all upcoming experiments.
-%
-\begin{figure} \label{fig:3.3}
-    \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-         \includegraphics[width=\textwidth]{Chapters/figures/mixed_prec_rtx2080_loss.jpg}
-         \caption{Loss curve RTX 2080 Ti}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-         \includegraphics[width=\textwidth]{Chapters/figures/mixed_prec_a100_loss.jpg}
-         \caption{Loss curve A100}
-    \end{subfigure}
-    \caption{Comparing loss curves for mixed precision \textbf{on} an \textbf{off} for both GPUs}
-\end{figure}
-%
-\subsection{Training on arbitrary image sizes} %0.5-1
-When training a generative model the image size the model gets as input for learning can have a large effect on what the model learns. Here not the total image size of the images is meant but the image size the model gets as input. As an example the cityscapes dataset (downscaled) consists of $256\times512$ pixel images. To reduce vRAM during training, the images from the dataset often are randomly cropped to another resolution, here $256\times256$. For some datasets this has only little negative effects on the model accuracy, e.g. for landscapes where the relative position of objects to each other only plays a minor role. But for datasets as the cityscapes dataset it is quite important for realistic results that the models learns the logic of images showing street scenes, i.e. learning that the street is in the middle, that there are parking cars on the left and right side of the image and so on. Training on too small crops can hinder the model to learn such logic.
-
-As the version of NCSN \cite{score_3} does not support training on/sampling of non-square images the model was adapted to do so. Actually the model already was able to process non-square images natively but there was a small bug that we fixed to make non-square training/sampling possible. To show the importance of this bugfix we investigate the influence of the above described effect on NCSN. For this purpose we trained two identical NCSN, one on $256\times256$ crops and one on the $256\times512$ original images. The results can be seen in TODO It is clearly visible that the full image model outperforms the cropped image model when the focus of evaluation is on street scene logic. It must be mentioned that for semantic image synthesis – the task for our experiments – this logic information actually is given by the semantic map. Nevertheless we suspect that a model knowing the logic without a semantic map also performs somewhat better than if it did not. For that reason models for further experiments on the cityscapes dataset were always trained with the full size images.
+\section{Controllable Generation} \label{sec:4.5}
 

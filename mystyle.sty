@@ -74,6 +74,13 @@
 \fancyfoot[L]{\ifthenelse{\isodd{\value{page}}}{}{\thepage}}
 \fancyfoot[C]{}
 
+\fancypagestyle{plain}{% % <-- this is new
+  \fancyhf{} 
+  \fancyfoot[R]{\ifthenelse{\isodd{\value{page}}}{\thepage}{}}
+  \fancyfoot[L]{\ifthenelse{\isodd{\value{page}}}{}{\thepage}}
+  \renewcommand{\headrulewidth}{0pt}}
+
+
 % Absatz 
 \setlength{\parindent}{1em}
 

@@ -38,21 +38,26 @@
     ?\\
     under the supervision of\\
     Prof. Dr. Björn Ommer and $\dots$
+    \afterpage{\blankpage}
 \end{center}
 \end{titlepage}
 %
-\frontmatter 
+\frontmatter
 
-\chapter{Acknowledgements}
+\chapter*{Acknowledgements}
+\thispagestyle{empty}
 \input{Chapters/acknowledgements}
 \afterpage{\blankpage}
 
-\chapter{Abstract}
+\chapter*{Abstract}
 \input{Chapters/abstract}
+\thispagestyle{empty}
 \afterpage{\blankpage}
 
 \setcounter{tocdepth}{1}
 \tableofcontents
+\thispagestyle{empty}
+\addtocontents{toc}{\protect\thispagestyle{empty}}
 
 \mainmatter
 \chapter{Introduction}
@@ -79,11 +84,8 @@
 
 
 \chapter{Implementation and Experiments}
-\section{Controllable Generation} %0.5-1
-\section{Class-Conditional Sampling} %0.5-1
-\section{Semantic Synthesis Sampling} %1-2
-\section{A competitive experiment on the Cityscapes dataset} %5-7
-\section{Generating high resolution landscapes} %5-7
+\input{Chapters/chapter5}
+
 
 \chapter{Conclusions and outlook} %2-3
 %min 32 max 47
