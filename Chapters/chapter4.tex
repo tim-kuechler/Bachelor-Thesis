@@ -170,7 +170,7 @@ With the release of \cite{score_1} the authors found that their \textit{FID (Fr√
 \end{algorithm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[The way to continuous noise]{The way to continuous noise%
-    \sectionmark{Continuous Noise}} \label{sec:4.3}
+    \sectionmark{Continuous Noise}} \label{sec:4.4}
 \sectionmark{Continuous Noise}
 In \hyperref[sec:4.2]{Sec.\,4.2} a sequence of discrete noise scales was used to perturb the data distribution. Although this score-model produced first visually appealing samples (\cite{score_1}), the training image and sample size of the model was limited to $\sim64\times64$. In Ref. \cite{score_2} $5$ techniques were proposed which allowed higher resolutions up to $256\times256$ in their application. Introducing a continuous noise instead of discrete noise scales allows for resolutions up to $1024\times1024$, a mathematically pleasant generalization of different Score-Based Models and creates the possibility for a lot more sampling methods than just Langevin Dynamics.
 %
@@ -305,4 +305,21 @@ There were also other sampling methods proposed of which we want to name a few. 
 A really promising sampler was proposed as a result of an in-depth sampler analysis and a lot of finetuning in \cite{gotta_go_fast}. These samplers are non-general-purpose SDE solvers which means they are specially tailored to solve the SDE in \hyperref[equ:4.10]{Equ.\,4.10}. This results in sampling speeds $2-10$ times higher than all other mentioned samplers and also in higher sampling quality. However, since this sampler was was published only shortly from our final deadline, we were not able to implement and test it properly.
 
 \section{Controllable Generation} \label{sec:4.5}
+Controllable Generation is the modulation of the generation process. Popular controllable generation tasks include inpainting, colorization, class conditional generation or generation conditioned on semantic maps. For continuous-noise Score-Based Generative Models (\hyperref[sec:4.4]{Sec.\,4.4}), controllable generation can be achieved in a neat way. Instead of re-training the model for each controllable generation task, additional information can be used for SGMs during the sampling process to model the controllable generation task.
+
+Basically this means that when we have a trained score-model $s_\theta(\vec{x}, \sigma)$, it is not only possible to sample from $p_{data}(\vec{x}(0))$ but also from $p_{data}(\vec{x}(0)|\vec{y})$ if $p_t(\vec{y}|\vec{x}(t))$ is known. Here $p_{data}(\vec{x}(0)|\vec{y})$ is the data distribution of images with zero noise which fulfill the condition $\vec{y}$ and $p_t(\vec{y}|\vec{x}(t))$ is a probability density function for $\vec{x}(t)$ fulfilling the condition $\vec{y}$ at timestep $t$.
+
+Starting with $p_T(\vec{x}(T)|\vec{y})$ it is possible to solve the following conditional reverse SDE to sample from $p_{data}(\vec{x}(0)|\vec{y})$:
+%
+\begin{equation} \label{equ:4.22}
+    d\vec{x}=\{\vec{f}(\vec{x},t)-g(t)^2[\nabla_{\vec{x}}\log p_t(\vec{x})+\nabla_{\vec{x}}\log p_t(\vec{y}|\vec{x})]\}dt+g(t)d\bar{\vec{w}}
+\end{equation}
+%
+For class-conditional or semantic map-based generation, the consequence is that a second model is needed to solve the reverse SDE. In \hyperref[equ:4.22]{Equ.\,4.22} the score-model is responsible for the unconditional score $\nabla_{\vec{x}}\log p_t(\vec{x})$, while a second, independently trained model is responsible for the conditional scores $\nabla_{\vec{x}}\log p_t(\vec{y}|\vec{x})$. What seems very mathematical at first is actually very easy to implement.
+%
+\begin{enumerate}
+    \item Train the continuous-noise score-model $s_\theta(\vec{x},\sigma)$ on a dataset of choice.
+    \item Train a second model conditioned on the same noise which is able to output $\vec{y}$ from $\vec{x}(t)$. For semantic image synthesis, this would mean training a noise-conditional semantic segmentation network $p_\theta(\vec{x}, \sigma)$ (\hyperref[sec:3.1]{Sec.\,3.1}) with noisy images $\vec{x}(t)$ where the semantic map used for error computation is $\vec{y}$ of the not noisy original image $\vec{x}(0)$.
+    \item During training add the scores of the score-model to the scores of the noise-conditional segmentation network. To obtain scores from the segmentation network, compare the prediction $\vec{y}(t)$ on the sample $\vec{x}(t)$ at the current sampling step $t$ to the target segmentation map $\vec{y}$ and compute the gradients that would make $\vec{y}(t)$ look more like $\vec{y}$.
+\end{enumerate}
 

@@ -48,7 +48,7 @@ A fully connected layer is the easiest layer for neural networks. In this layer 
 \subsubsection{Normalization Layers}
 Normalization layers normalize the given inputs. There are several normalization techniques that depend on the choice of what to normalize. Take Batch Normalization (BN) as an example. Suppose the image data is of the form $(N, C, W, H)$ where $N$ is the batch size, $C$ is the channel number (e.g. $3$ for RGB images) and $W$ and $H$ are width and height respectively. Then BN normalizes $(N, W, H)$ for each $C$ by transforming the input $\vec{x}$ in the following way:
 %
-\begin{equation}
+\begin{equation} \label{equ:2.3}
     \mu_B=\frac{1}{N}\sum_{i=1}^Nx_i, \quad\sigma_B^2=\frac{1}{N}\sum_{i=1}^N(x_i-\mu_B)^2\quad \Longrightarrow\quad y_i=\gamma\frac{x_i-\mu_B}{\sigma_B}+\beta,
 \end{equation}
 %
@@ -84,8 +84,8 @@ As we have seen, Convolutional Layers summarize and learn specific features in a
     \text{average pooling:}\quad&f(\tilde{\vec{x}})=\frac{1}{n\cdot m}\sum_{i=1}^n\sum_{j=1}^mx_{ij}
 \end{align}
 %
-\subsubsection{Dropout (Layers)}
-Dropout Layers can be applied to any other layer type and have no learnable parameters. They are therefore no real layers. During training, specified by a dropout probability $p$, they randomly set parameters to $0$. The purpose of dropout is to prevent model overfitting, i.e. preventing the model from memorizing instead of learning a dataset.
+\subsubsection{Dropout \cancel{Layers}}
+Dropout can be applied to any other layer type and have no learnable parameters. Dropout therefore is no real layer. During training, specified by a dropout probability $p$, parameters are randomly set to $0$. The purpose of dropout is to prevent model overfitting, i.e. preventing the model from memorizing instead of learning a dataset.
 %
 \subsection{Model Objectives}
 The concept of \textit{model} is very important in Deep Learning. A model can be understood as a superordinate concept to a concrete implementation. We denote a model as $s_\theta(\vec{x})$, where $\vec{x}$ is the data input and $\theta$ is the set of all learnable parameters. The letter $s$ is chosen because we will discuss score-models in this thesis, but generally it is free of choice.
