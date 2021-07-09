@@ -4,7 +4,7 @@ A large field of models in Deep Learning are discriminative models. A simple ver
 
 The above described classifiers always assign one scalar value to an input. Semantic Segmentation Networks also assign scalar values, but not one value per image, but one value per pixel! This already reveals a lot about the application of such networks. They operate on images and their task is to assign each pixel in the image a class. For example, given the image of a street scene a semantic segmentation network tries to classify each individual pixel as part of a car, a street, a building, $\dots$\,.
 %
-\begin{figure} \label{fig:3.2}
+\begin{figure} \label{fig:3.1}
     \centering
     \includegraphics[width=.8\textwidth]{Chapters/figures/sem_seg.PNG}
     \caption{Overview of various computer vision tasks}
@@ -74,7 +74,7 @@ A VAE solves this problem by ensuring that the latent space has good properties 
     \caption{Basic VAE model architecture}
 \end{figure}
 %
-\subsubsection{Generative Adversarial Networks} \label{equ:3.3}
+\subsubsection{Generative Adversarial Networks} \label{sec:gans}
 GANs were proposed in 2014 \cite{gan_original} and have since seen great success and a lot of adaptions. GANs work by combining two models: A generator model and a discriminator model. These two models are trained at the same time and have an adversarial relationship. Adversarial in that sense means that the generator and discriminator have opposing objectives. 
 
 The generator $G(\vec{x})$ has the task of generating samples of the data distribution $p_{data}(\vec{x})$. The discriminator $D(\vec{x})$ has the role of distinguishing the generated data $\tilde{\vec{x}}$ from the real data $\vec{x}$. So to say the task of the generator is to best possible trick the discriminator that at the same time has the task to best possible decide if an image is real or fake (generated). If the discriminator correctly identifies a generated image as fake the generator is punished to produce better images. Obviously, "better" just means that the images are more likely to fool the discriminator, which does not necessarily equate to a real-looking image. When the discriminator is deceived by the generator, it is punished to better discriminate real and fake images. While GANs can produce excellent samples and are fast at sampling, it's easy to imagine how hard it is to train two networks at the same time. If not properly adjusted training quickly becomes unstable.
@@ -108,7 +108,7 @@ which can be interpreted as the discriminator trying to minimize its error, whil
 \end{figure}
 %
 
-In this thesis the results of our score-based generative semantic image synthesis model are compared with the results of state-of-the-art modelso of different architecture. All models used for comparison are briefly explained below:
+In this thesis the results of our score-based generative semantic image synthesis model are compared with the results of state-of-the-art models of different architecture. All models used for comparison are briefly explained below:
 
 \subsection{Cascaded Refinement Networks} \label{sec:3.2.1}
 Photographic Image Synthesis with Cascaded Refinement Networks (CRN) \cite{crn}, a work from 2017, proposed one of the first models being able to synthesize convincing photographic

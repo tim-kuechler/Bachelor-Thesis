@@ -94,22 +94,29 @@ We are therefore interested in finding the time interval $T\subset[0,1]$ in whic
 
 Therefore, as a scaling function we propose a function that is $0$ in regions where the network performs badly and $1$, in regions where the networks performs reasonable, followed by a linear decrease to $0$ for regions where we suggest that the image structure has already consolidated. To find out these regions we perform two experiments. In the first experiment we set the scale factor to $1$ for $t>t_{stop}$ and to $0$ for $t<=t_{stop}$, where $t_{stop}$ is subsequently reduced from $1$ to $0$ for each sample. In the second experiment we introduce $t_{start}$ for which for $t<t_{start}$ the scale factor is $1$ and for $t>=t_{start}$ the scale factor is $0$. The results – exemplary for one semantic map – can be seen in \hyperref[fig:5.4]{Fig.\,5.4} resp. \hyperref[fig:5.5]{Fig.\,5.5}.
 
-Based on the findings for these experiments we generously conclude that for $t>0.8$ the segmentation network performs to badly to be helpful for generation and that for $t<0.4$ the structures in the image have already consolidated. We therefore propose the following scale function:
+%
+\begin{figure} \label{fig:5.2}
+    \centering
+    \includegraphics[width=.65\textwidth]{Chapters/figures/experiments/scale/scale_function.jpg}
+    \caption{The proposed scale factor function}
+\end{figure}
+%
+We come to the qualitative result that in order to get samples that match the semantic map the semantic segmentation network has to be started at $T>65$ and can be stopped/decreased at $T<0.45$.  Based on the findings for these experiments, supplemented by the accuracy and mIoU curves in TODO, we generously conclude that for $t>0.8$ the segmentation network performs to badly to be helpful for generation and that for $t<0.45$ the structures in the image have already consolidated. We therefore propose the following scale function:
 %
 \begin{equation}
     s(t)=\begin{cases}
         0, &\text{for }t>0.8\\
-        s_0, &\text{for }t<=0.8 \land t>0.4\\
-        s_0-s_0\cdot(1-\nicefrac{t}{0.4}), &\text{for }t<=0.4
+        s_0, &\text{for }t<=0.8 \land t>0.45\\
+        \frac{s_0}{0.45^2}t^2, &\text{for }t<=0.45
     \end{cases},
 \end{equation}
 %
-where $s_0$ is the maximum scale factor for a given dataset, which is determined experimentally. The final gradients for sampling are therefore calculated via
+where $s_0$ is the maximum scale factor for a given dataset, which is determined experimentally. As function in the region $0\leq t\leq0.45$ any kind of function that decreases sufficiently fast could be used. The final gradients for sampling are therefore calculated via
 %
 \begin{equation}
     \nabla_{\vec{x}}\log p_t(\vec{x})+s(t)\cdot\nabla_{\vec{x}}\log p_t(\vec{y}|\vec{x}).
 \end{equation}
-%
+
 \begin{figure} \label{fig:5.4}
     \tiny
     \centering
@@ -125,7 +132,7 @@ where $s_0$ is the maximum scale factor for a given dataset, which is determined
     \caption{Stop}
 \end{figure}
 
-\begin{figure} \label{fig:5.4}
+\begin{figure} \label{fig:5.5}
     \tiny
     \centering
     \setlength\tabcolsep{-2pt}
@@ -233,6 +240,40 @@ As the version of NCSN \cite{score_3} does not support training on/sampling of n
 
 \subsection{The Cityscapes dataset}
 \subsection{Metrics}
+
+pix2pixHD: mIoU: 51.72, FID: 83.91\\
+SPADE: mIoU: 61.91, FID: 56.03\\
+CRN: mIoU: 53.45, FID: 71.43\\
+Oracle: mIoU: 61.81, FID: 0\\
+
+TODO: noise vs miou curve in 5.2 -> base function on results
+compare results with different start T
+
+
+%
+\begin{figure}[] \label{fig:3.2}
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{Chapters/figures/experiments/cityscapes/accuracy_cityscapes.PNG}
+         \caption{Accuracy}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{Chapters/figures/experiments/cityscapes/mIoU_cityscapes.PNG}
+         \caption{Mean IoU}
+    \end{subfigure}
+    \caption[Short-form caption]{Accuracy and mean IoU for noise-conditional U-Net trained on the Cityscapes dataset}
+\end{figure}
+%
+
+%
+\begin{figure}[] \label{fig:3.2}
+    \centering
+    \includegraphics[width=.65\textwidth]{Chapters/figures/experiments/cityscapes/loss_cityscapes_seg.jpg}
+    \caption[Short-form caption]{Training and evaluation loss of U-Net trained on the Cityscapes dataset}
+\end{figure}
+%
 
 \section{Synthesizing high resolution landscapes} \label{sec:5.5}
 
