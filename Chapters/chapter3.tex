@@ -7,7 +7,7 @@ The above described classifiers always assign one scalar value to an input. Sema
 \begin{figure} \label{fig:3.1}
     \centering
     \includegraphics[width=.8\textwidth]{Chapters/figures/sem_seg.PNG}
-    \caption{Overview of various computer vision tasks}
+    \caption[Overview of various computer vision tasks]{Overview of various computer vision tasks. Figure from\\ http://cs231n.stanford.edu/slides/2017/cs231n\_2017\_lecture11.pdf.}
 \end{figure}
 %
 
@@ -23,14 +23,14 @@ VGGNet in principle works by first downsampling an image with several convolutio
 \begin{figure} \label{fig:3.2}
     \centering
     \includegraphics[width=.65\textwidth]{Chapters/figures/vgg.PNG}
-    \caption{The architecture of classification networks such as VGGNet}
+    \caption[The architecture of classification networks]{The architecture of classification networks such as VGGNet. Figure from\\ https://towardsdatascience.com/review-fcn-semantic-segmentation-eb8c9b50d2d1.}
 \end{figure}
 %
 %
 \begin{figure}[b] \label{fig:3.3}
     \centering
     \includegraphics[width=.65\textwidth]{Chapters/figures/fcn.PNG}
-    \caption{The FCN architecture}
+    \caption[The FCN architecture]{The FCN architecture. Figure from \cite{fcn}.}
 \end{figure}
 %
 
@@ -40,7 +40,7 @@ FCN builds on this architecture by replacing the fully connected layers with $1\
 \begin{figure} \label{fig:3.4}
     \centering
     \includegraphics[width=.65\textwidth]{Chapters/figures/fcn2.PNG}
-    \caption{Upsampling by successively combining the output of all max pooling layers. Image from \cite{fcn}}
+    \caption[FCN upsampling process]{Upsampling by successively combining the output of all max pooling layers. Image from \cite{fcn}}
 \end{figure}
 %
 \subsection{U-Net} \label{sec:3.1.2}
@@ -49,7 +49,7 @@ U-Net \cite{unet} is an adaption of the fully convolutional structure of FCNs (\
 \begin{figure}[h!] \label{fig:3.5}
     \centering
     \includegraphics[width=.70\textwidth]{Chapters/figures/unet.PNG}
-    \caption{The U-Net architecture. Image from \cite{unet}}
+    \caption[The U-Net architecture]{The U-Net architecture. Figure from \cite{unet}.}
 \end{figure}
 %
 
@@ -71,7 +71,8 @@ A VAE solves this problem by ensuring that the latent space has good properties 
 \begin{figure} \label{fig:3.6}
     \centering
     \includegraphics[width=.65\textwidth]{Chapters/figures/vae.PNG}
-    \caption{Basic VAE model architecture}
+    \caption[Basic VAE model architecture]{Basic VAE model architecture. Figure from\\
+    https://towardsdatascience.com/understanding-variational-autoencoders-vaes-f70510919f73}
 \end{figure}
 %
 \subsubsection{Generative Adversarial Networks} \label{sec:gans}
@@ -104,7 +105,7 @@ which can be interpreted as the discriminator trying to minimize its error, whil
 \begin{figure} \label{fig:3.7}
     \centering
     \includegraphics[width=.9\textwidth]{Chapters/figures/gan.PNG}
-    \caption{Basic GAN model architecture}
+    \caption[Basic GAN model architecture]{Basic GAN model architecture}
 \end{figure}
 %
 
@@ -117,7 +118,7 @@ Photographic Image Synthesis with Cascaded Refinement Networks (CRN) \cite{crn},
     \begin{center}
         \includegraphics[width=0.43\textwidth]{Chapters/figures/crn_example.PNG}
     \end{center}
-    \caption{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
+    \caption[]{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
 \end{wrapfigure}
 %
 looking images from semantic maps. Unlike other popular models to that time the proposed model does not depend on adversarial training, therefore is no GAN. In fact, CRN is a simple feedforward convolutional network, so it is not a VAE either. The reason to try a feedforward model is mainly due to the problems of other models (mostly GANs) at that time. There were problems of GANs not scaling up to higher resolution. Also GANs back then were very unstable to train and therefore "remain remarkably difficult to train".
@@ -136,7 +137,7 @@ pix2pixHD \cite{pix2pixHD} is the successor of the older pix2pix \cite{pix2pix} 
     \begin{center}
         \includegraphics[width=0.43\textwidth]{Chapters/figures/pix2pixHD_example.PNG}
     \end{center}
-    \caption{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
+    \caption[]{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
 \end{wrapfigure}
 %
 show that their model is able to produce samples of higher quality and realism than CRN (\hyperref[sec:3.2.1]{Sec.\,3.2.1}).
@@ -160,7 +161,7 @@ Normally in normalization layers such as Batch Normalization, the activations of
     \begin{center}
         \includegraphics[width=0.43\textwidth]{Chapters/figures/spade_example.PNG}
     \end{center}
-    \caption{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
+    \caption[]{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
 \end{wrapfigure}
 %
 denormalized using learned parameters. These learned parameters have no information of the semantic map and are the same for all values in $w_i\times h_i$, i.a. they are not spatially-adaptive. This behavior leads to information loss during normalization.
@@ -174,8 +175,8 @@ The SPADE layer solves the normalization problem where segmentation map informat
 This equation is in index notation where $n\in N$ is the batch size, $c\in C^i$ is the channel size, $y\in H^i$ the vertical pixel position and $x\in W^i$ the horizontal pixel position. $\vec{m}$ is the target segmentation map and $\mu_c^i$ and $\sigma_c^i$ are the mean and standard deviation of $\vec{h}^i$ in channel $c$, defined by 
 %
 \begin{align}
-    \mu_c^i&=\frac{1}{NH^iW^i}\sum{n,y,x}h_{n,c,y,x}^i\\[1ex]
-    \sigma_c^i&=\sqrt{\frac{1}{NH^iW^i}\sum{n,y,x}\left((h_{n,c,y,x}^i)^2-(\mu_c^i)^2\right)}
+    \mu_c^i&=\frac{1}{NH^iW^i}\sum_{n,y,x}h_{n,c,y,x}^i\\[1ex]
+    \sigma_c^i&=\sqrt{\frac{1}{NH^iW^i}\sum_{n,y,x}\left((h_{n,c,y,x}^i)^2-(\mu_c^i)^2\right)}
 \end{align}
 %
 For better understanding note the similarities to the equations defining Batch Normalization in \hyperref[equ:2.3]{Equ.\,2.3}. Condensed to one sentence, spatially-adaptive normalization is a batch normalization that is conditioned on the segmentation map $\vec{m}$ and is spatially dependent on the pixel positions $x$ and $y$. Replacing the normal normalization layers in pix2pixHD by SPADE layers yields slightly better image quality and realism.

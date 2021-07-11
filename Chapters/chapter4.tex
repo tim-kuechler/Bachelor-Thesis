@@ -72,7 +72,7 @@ Recapitulating what the algorithm does one can look at \hyperref[fig:4.1]{Fig.\,
 \begin{figure}[] \label{fig:4.1}
     \centering
     \includegraphics[width=.8\textwidth]{Chapters/figures/langevin.PNG}
-    \caption{Application of Langevin Dynamics sampling, \\Figure from https://abdulfatir.com/Langevin-Monte-Carlo/}
+    \caption[Application of Langevin Dynamics sampling]{Application of Langevin Dynamics sampling. Figure from\\ https://abdulfatir.com/Langevin-Monte-Carlo/}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Hindrances of a na\"{i}ve applicaton} \label{sec:4.2}
@@ -133,7 +133,7 @@ After introducing noise scales is is clear that also the Langevin Dynamics algor
         $\tilde{\vec{x}}_0\leftarrow\tilde{\vec{x}}_T$
     }
     \Return{$\tilde{\vec{x}}_T$}
-    \caption{\textsc{Annealed Langevin Dynamics} (adapted from \cite{score_1})}
+    \caption[Annealed Langevin Dynamics]{\textsc{Annealed Langevin Dynamics} (adapted from \cite{score_1})}
 \end{algorithm}
 
 Here $\alpha_i$ denotes the outer step size that is tuned down gradually by $\alpha_i=\epsilon\cdot\sigma_i^2/\sigma_L^2$. Since the noise distributions $\{\sigma_i\}_{i=1}^L$ are perturbed with Gaussian noise the scores encountered during sampling are all well defined. Also, when $\sigma_1$ is sufficiently large there are less low density regions in $q_{\sigma_1}(\vec{x})$, preventing the algorithm to encounter regions where the score has not been learned due to a lack of training data.
@@ -159,7 +159,7 @@ With the release of \cite{score_1} the authors found that their \textit{FID (Fr√
         \Return{$\tilde{\vec{x}}_T$}
     }
     
-    \caption{\textsc{Improved Annealed Langevin Dynamics} (adapted from \cite{score_1} and \cite{score_4})}
+    \caption[Improved Annealed Langevin Dynamics]{\textsc{Improved Annealed Langevin Dynamics} (adapted from \cite{score_1} and \cite{score_4})}
 \end{algorithm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[The way to continuous noise]{The way to continuous noise%
@@ -277,7 +277,7 @@ The full predictor-corrector algorithm using Langevin Dynamics and the Euler-Mar
     \Return{$\tilde{\vec{x}}_N$}
 
     
-    \caption{\textsc{Predictor-Corrector Sampler}}
+    \caption[Predictor-Corrector Sampler]{\textsc{Predictor-Corrector Sampler}}
 \end{algorithm}
 %
 \subsubsection{Probability Flow ODE sampler}
