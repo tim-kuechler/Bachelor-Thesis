@@ -3,7 +3,7 @@
 \section{Class-Conditional Sampling} \label{sec:5.1}
 Class-conditional sampling works in the same way as semantic synthesis sampling but in general is much easier to do as there is only one label per image instead of one label per pixel. As we will see, the quality of the resulting samples heavily depend on how good the classification network or the segmentation network perform on high noise and in general it is easier to estimate a label from a noisy image than a label for every pixel, where each pixel is transformed by noise up to two magnitudes higher than the individual pixel information.
 
-That SGMs can do class-conditional sampling has been already shown in \cite{score_3} but this capability was exclusively shown for an implementation in Tensorflow. To close this gap we ported the Tensorflow implementation to PyTorch. As a classification network a noise-conditional Wide Residual Network \cite{wrn} was used. 
+That SGMs can do class-conditional sampling has been already shown in \cite{score_3} but this capability was exclusively shown for an implementation in Tensorflow. To close this gap we ported the Tensorflow implementation to PyTorch. As a classification network a noise-conditional Wide Residual Network (WideResNet) \cite{wrn} was used. 
 
 Interestingly we found that the gradients computed on the WideResNet prediction were around $1000$ times smaller than the gradients of the score-model. Therefore the class-conditional gradients had no effect on the image generation and had to be scaled with an experimentally motivated factor of $1000$ in order to get good results. Since there was not such a scaling factor in the Tensorflow implementation, we would have been very interested to know if the class-conditional gradients in this implementation were larger natively. Unfortunately due to Tensorflows jit (just in time) technique, there is no way to read out any tensors during runtime. As it turns out, these scaling factors are also important in later experiments and must be determined individually for each dataset. Also, it is often not sufficient to choose a static scaling factor, but a scaling factor described by a function must be chosen.
 
@@ -236,7 +236,7 @@ As the version of NCSN \cite{score_3} does not support training on/sampling of n
         \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/crop/3_uncond_sample.png} &
         \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/crop/7_uncond_sample.png}
     \end{tabular}
-    \caption[Unconditional example images of NCSN trained on cropped images and full size images]{Unconditional example images of NCSN trained on cropped images (\textit{top}) and full size images (\textit{bottom})}
+    \caption[Unconditional samples of NCSN trained on cropped images and full size images]{Unconditional samples of NCSN trained on cropped images (\textit{top}) and full size images (\textit{bottom})}
     \label{tab:my_label}
 \end{table}
 
@@ -379,7 +379,7 @@ Given the same maximum noise scale $\sigma_{max}\approx338$ as for NSCN++ and a 
         \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000139_000019_leftImg8bit.png} & 
         \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/frankfurt_000000_001236_leftImg8bit.png}
     \end{tabular}
-    \caption{Comparison on the Cityscapes dataset}
+    \caption[Visual comparison of semantic image synthesis results on the Cityscapes dataset]{Visual comparison of semantic image synthesis results on the Cityscapes dataset \cite{cityscapes}}
 \end{figure}
 
 
@@ -407,7 +407,7 @@ methods on the Cityscapes dataset \cite{cityscapes}}
          FID & 71.43 & 83.91 & \textbf{56.03} & 68.85\\
          \bottomrule
     \end{tabular}
-    \caption{FID scores on results by different methods on the Cityscapes dataset \cite{cityscapes}}
+    \caption[FID scores on results by different methods on the Cityscapes dataset]{FID scores on results by different methods on the Cityscapes dataset \cite{cityscapes}}
     \label{tab:my_label}
 \end{table}
 

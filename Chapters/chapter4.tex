@@ -285,7 +285,7 @@ The full predictor-corrector algorithm using Langevin Dynamics and the Euler-Mar
 This sampling strategy is based upon the mathematical finding that every diffusion process has a corresponding \textit{deterministic process} which is governed by the following \textit{ODE}:
 %
 \begin{equation} \label{equ:4.21}
-    d\vec{x}=\left[\vec{f}(\vec{x},t)-\frac{1}{2}g(t)^2\nabla_{\vec{x}}\log p_t(\vec{x})\right]dt
+    d\vec{x}=\left[\vec{f}(\vec{x},t)-\frac{1}{2}g(t)^2\nabla_{\vec{x}}\log p_t(\vec{x})\right]dt.
 \end{equation}
 %
 Deterministic in this sense means that the trajectories of the process are not affected by some kind of randomness but rather can be predicted beforehand. This special ODE which needs the score in order to be determined from the SDE shares the same probability densities $\{p_t(\vec{x})\}_{t=0}^T$ as the SDE. 
@@ -310,7 +310,7 @@ Starting with $p_T(\vec{x}(T)|\vec{y})$ it is possible to solve the following co
     d\vec{x}=\{\vec{f}(\vec{x},t)-g(t)^2[\nabla_{\vec{x}}\log p_t(\vec{x})+\nabla_{\vec{x}}\log p_t(\vec{y}|\vec{x})]\}dt+g(t)d\bar{\vec{w}}.
 \end{equation}
 %
-For class-conditional or semantic map-based generation, the consequence is that a second model is needed to solve the reverse SDE. In \hyperref[equ:4.22]{Equ.\,4.22} the score-model is responsible for the unconditional score $\nabla_{\vec{x}}\log p_t(\vec{x})$, while a second, independently trained model is responsible for the conditional scores $\nabla_{\vec{x}}\log p_t(\vec{y}|\vec{x})$. What seems very mathematical at first is actually very easy to implement.
+For class-conditional or semantic map-based generation, the consequence is that a second model is needed to solve the reverse SDE. In \hyperref[equ:4.22]{Equ.\,4.22} the score-model is responsible for the unconditional score $\nabla_{\vec{x}}\log p_t(\vec{x})$, while a second, independently trained model is responsible for the conditional scores $\nabla_{\vec{x}}\log p_t(\vec{y}|\vec{x})$. What seems very mathematical at first is actually very easy to implement:
 %
 \begin{enumerate}
     \item Train the continuous-noise score-model $s_\theta(\vec{x},\sigma)$ on a dataset of choice.

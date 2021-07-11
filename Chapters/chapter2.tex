@@ -1,8 +1,8 @@
 \section{Neural Networks}
 \subsection{The Perceptron}
-The basis of each Neural network is the \textit{perceptron}. A perceptron essentially is an algorithm that is inspired by biological neurons. The perceptron can therefore be understood as an artificial neuron.
+The basis of each neural network is the \textit{perceptron}. A perceptron essentially is an algorithm that is inspired by biological neurons. The perceptron can therefore be understood as an artificial neuron.
 
-Mathematically a perceptron processes an input vector $\vec{x}\in\mathbb{R}^n$ and produces an output $\vec{y}\in\mathbb{R}^m$. 
+Mathematically a perceptron processes an input vector $\vec{x}\in\mathbb{R}^n$ and produces an output vector $\vec{y}\in\mathbb{R}^m$. 
 %
 \begin{figure} \label{fig:2.1}
     \centering
@@ -10,40 +10,40 @@ Mathematically a perceptron processes an input vector $\vec{x}\in\mathbb{R}^n$ a
     \caption[Schematic layout of a perceptron]{Schematic layout of a perceptron. Figure from\\ https://starship-knowledge.com/neural-networks-perceptrons.}
 \end{figure}
 %
-In the simplified representation of a perceptron in \hyperref[fig:2.1]{Fig. 2.1} the inputs $x_i$ $ (i=0,\dots,m)$ are multiplied by weights $w_i$ and then summed. Thereafter an non-linear function is applied to produce the output $y\in\mathbb{R}$. It is the adaption of this weights to a specific problem that is the core of learning in a neural network. A generalization of the transformation described above is given by
+In the simplified representation of a perceptron in \hyperref[fig:2.1]{Fig.\,2.1} the inputs $x_i$ $ (i=0,\dots,m)$ are multiplied by weights $w_i$ and then summed. Thereafter an non-linear function is applied to produce the output $y\in\mathbb{R}$. It is the adaption of these weights to a specific problem that is the core of learning in a neural network. A generalization of the transformation described above is given by
 %
 \begin{equation} \label{equ:2.1}
     \vec{A}\cdot\vec{x}+\vec{b}=\vec{\hat{\vec{y}}}
 \end{equation}
 %
-where $A\in\mathbb{R}^{m\times n}$ is a matrix of weights and $b\in\mathbb{R}^n$ is a bias. Then a non-linear transformation of the form
+where $A\in\mathbb{R}^{m\times n}$ is a matrix of weights and $b\in\mathbb{R}^m$ is a bias. Then a non-linear transformation of the form
 %
 \begin{equation} \label{equ:2.2}
     \vec{y}=\varphi(\hat{\vec{y}})
 \end{equation}
 %
-is applied to the intermediate result $\hat{\vec{y}}$. The non-linear function $\varphi(\cdot)$ is called the \textit{activation function}. This function has the task of mapping the arbitrary output from the range $(-\infty,\infty)$ to a more appropriate range. The choice of the activation function heavily on the specific architecture of a neural network. Typical choices of activation functions are the Sigmoid, Tanh, Softmax and ReLU functions. As activation functions do not play a big role in this thesis the concrete definition of these functions is left as an exploration to the reader.
+is applied to the intermediate result $\hat{\vec{y}}$. The non-linear function $\varphi(\cdot)$ is called the \textit{activation function}. This function has the task of mapping the arbitrary output $\hat{\vec{y}}$ from the range $(-\infty,\infty)$ to a more appropriate range. The choice of the activation function depends heavily on the specific architecture of a neural network. Typical choices of activation functions are the Sigmoid, Tanh, Softmax and ReLU functions. As activation functions do not play a big role in this thesis the concrete definition of these functions is left as an exploration to the reader.
 %
 \subsection{Multilayer Perceptrons} \label{sec:2.1.2}
-A Multilayer Perceptron is an arrangement of perceptions in different interconnected layers. This is what we call a (very basic) \textit{Neural Network}. As depicted in \hyperref[fig:2.2]{Fig. 2.2} a Multilayer Perceptron is composed of an input layer, one or more hidden layers and an output layer. 
+A \textit{Multilayer Perceptron} is an arrangement of perceptrons in different interconnected layers. This is what we call a (very basic) \textit{Neural Network}. As depicted in \hyperref[fig:2.2]{Fig.\,2.2} a Multilayer Perceptron is composed of an input layer, one or more hidden layers and an output layer. 
 %
 \begin{figure} \label{fig:2.2}
     \centering
     \includegraphics[width=.5\textwidth]{Chapters/figures/multilayer_perceptron.PNG}
-    \caption[The Multilayer Perceptron]{The Multilayer Perceptron. Figure from https://cdn.analyticsvidhya.com/wp-content/uploads/2020/02/ANN-Graph.gif.}
+    \caption[The Multilayer Perceptron]{The Multilayer Perceptron. Figure from\\ https://cdn.analyticsvidhya.com/wp-content/uploads/2020/02/ANN-Graph.gif.}
 \end{figure}
 %
-The output of a layer is connected to the input of the next layer (here: fully connected). The hidden layers can perform various tasks. Some of them are presented in \hyperref[sec:2.1.3]{Sec. 2.1.3}.
+The output of a layer is connected to the input of the next layer (here: fully connected). The hidden layers can perform various tasks and some of them are presented in \hyperref[sec:2.1.3]{Sec.\,2.1.3}.
 
-During training the learning process of such a neural network consists of three parts: the \textit{forward pass}, the \textit{loss calculation} and the \textit{backward pass}. In the forward pass the input values get processed by the different layers of the neural networks tho then produce an output. The loss calculation then computes how good this output is in relation to some optimal output for the given input. This is the concept of supervised learning. There is a variety of so-called \textit{loss functions} for calculating loss and some of them will be discussed when used. The computed loss is then back-propagated through the network to update the parameters of each perceptron in each layer. This is the process of learning. Back-propagation often works in the sense of a gradient descent. Since the loss is to be minimized, the influence of all individual parameters on the loss is then derived and adjusted according to the resulting gradient. 
+During training the learning process of such a neural network consists of three parts: the \textit{forward pass}, the \textit{loss calculation} and the \textit{backward pass}. In the forward pass the input values get processed by the different layers of the neural networks to then produce an output. The loss calculation then computes how good this output is in relation to some optimal output for the given input. This is the concept of \textit{supervised learning}. There is a variety of so-called \textit{loss functions} for the calculation of losses and some of them will be discussed when used. The computed loss is then back-propagated through the network to update the parameters of each perceptron in each layer. This is the process of artificial learning. Back-propagation often works in the sense of a gradient descent. Since the loss is to be minimized, the influence of all individual parameters on the loss is then derived and adjusted according to the resulting gradient. 
 
-Usually a batch of data is processed simultaneously by the the network. The process of forward pass, loss computation and backward pass of one batch is then called an iteration or a step. After each batch has been processed in a dataset, it is called an epoch.
+Usually a batch of data is processed simultaneously by the the network. The process of forward pass, loss computation and backward pass of one batch is then called an \textit{iteration} or a \textit{step}. After each batch has been processed in a dataset, it is called an \textit{epoch}.
 %
 \subsection{Common Layers in Neural Networks} \label{sec:2.1.3}
-Depending on the task of the neural network different layers of perceptrons are used. The most common ones are \textit{Fully Connected Layers}, \textit{Normalization Layers}, \textit{Dropout Layers}, \textit{Convolutional Layers} and \textit{Pooling layers}. It is important to note that the choice of layers for a specific problem is \textbf{not} trivial! In fact, often it is not even clear why a specific layer is good for for a specific task. Furthermore when training a neural network it is – in general – impossible to have any insight on how the neural network learned the task.
+Depending on the task of the neural network different layers of perceptrons are used. The most common ones are \textit{Fully Connected Layers}, \textit{Normalization Layers}, \textit{Convolutional Layers}, \textit{Pooling layers} and \textit{Dropout \cancel{Layers}}. It is important to note that the choice of layers for a specific problem is \textbf{not} trivial! In fact, often it is not even clear why a specific layer is good for a specific task. Furthermore when training a neural network it is – in general – impossible to have any insight on how the neural network learned the task.
 %
 \subsubsection{Fully Connected Layers}
-A fully connected layer is the easiest layer for neural networks. In this layer the output of every perceptron in one layer is connected to the input of every perceptron in the next layer. Mathematically this describes a linear operation between the perceptrons of two layers. Although fully connected layers are in theory able to fit every problem quite good they cannot be used excessively. Considering a $128\times128$ pixel RGB image leads to $4,831,838,208$ parameters to learn for two fully connected layers. Learning such a high amount of parameters (weights) is totally infeasible.
+A fully connected layer is the easiest layer for neural networks. In this layer the output of every perceptron in one layer is connected to the input of every perceptron in the next layer. Mathematically this describes a linear operation between the perceptrons of two layers. Although fully connected layers are in theory able to fit every problem quite good they cannot be used excessively. Considering a $128\times128$ pixel RGB image leads to $4,831,838,208$ parameters to learn for two fully connected layers. Learning such a high amount of parameters (weights) is computationally infeasible.
 %
 \subsubsection{Normalization Layers}
 Normalization layers normalize the given inputs. There are several normalization techniques that depend on the choice of what to normalize. Take Batch Normalization (BN) as an example. Suppose the image data is of the form $(N, C, W, H)$ where $N$ is the batch size, $C$ is the channel number (e.g. $3$ for RGB images) and $W$ and $H$ are width and height respectively. Then BN normalizes $(N, W, H)$ for each $C$ by transforming the input $\vec{x}$ in the following way:
@@ -52,7 +52,7 @@ Normalization layers normalize the given inputs. There are several normalization
     \mu_B=\frac{1}{N}\sum_{i=1}^Nx_i, \quad\sigma_B^2=\frac{1}{N}\sum_{i=1}^N(x_i-\mu_B)^2\quad \Longrightarrow\quad y_i=\gamma\frac{x_i-\mu_B}{\sigma_B}+\beta,
 \end{equation}
 %
-where $\gamma$ and $\beta$ are learnable parameters of the layer. Depending on the dimensions of the input that get normalized there is also Channel Norm, Instance Norm and Group Norm. Normalization layers are used to improve the stability, speed and performance of neural networks.
+where $\gamma$ and $\beta$ are learnable parameters of the layer. Depending on the dimensions of the input that get normalized there is also \textit{Channel Norm}, \textit{Instance Norm} and \textit{Group Norm}. Normalization layers are used to improve the stability, speed and performance of neural networks.
 %
 \subsubsection{Convolutional Layers}
 The Convolution Layer might be the most important layer in computer vision and gives rise to the category of \textit{Convolutional Neural Networks} (CNNs). This type of Neural networks makes extensive use of convolutional layers and is an important concept in computer vision tasks.
@@ -62,10 +62,10 @@ A Convolutional Layer is especially useful to extract features from images. For 
 As the Convolutional Layer is most often used for image feature extraction the \textit{2D-Convolution Layer} is the most popular Convolution Layer and is defined by a 2-dimensional convolution
 %
 \begin{equation}
-    y_{i,j}=(\vec{x}\ast\vec{f})_{i,j}=\sum_{c=1}^{C}\sum_{h=1}^{H_f}\sum_{w=1}^{W_f}\vec{f}_{c,h,w}\vec{x}_{i+h-1,j+w-1,c}\,,
+    y_{i,j}=(\vec{x}\ast\vec{f})_{i,j}=\sum_{c=1}^{C}\sum_{h=1}^{H_f}\sum_{w=1}^{W_f}\vec{f}_{c,h,w}\vec{x}_{i+h-1,j+w-1,c}
 \end{equation}
 %
-for an input of size $(C,H,W)$. Essentially this operation can be understood as applying a filter $\vec{f}$ of size $(C, H_f, W_f)$ to each part of the image. For each position of the filter the corresponding values in the image are multiplied with the learned weights in the filter and then summed up. These summed values for each filter position then form a new output. A illustration of this process is shown in \hyperref[fig:2.3]{Fig. 2.3}.
+for an input of size $(C,H,W)$. Essentially this operation can be understood as applying a filter $\vec{f}$ of size $(C, H_f, W_f)$ to each part of the image. For each position of the filter the corresponding values in the image are multiplied with the learned weights in the filter and then summed up. These summed values for each filter position then form a new output. An illustration of this process is shown in \hyperref[fig:2.3]{Fig.\,2.3}.
 %
 \begin{figure} \label{fig:2.3}
     \centering
@@ -85,10 +85,10 @@ As we have seen, Convolutional Layers summarize and learn specific features in a
 \end{align}
 %
 \subsubsection{Dropout \cancel{Layers}}
-Dropout can be applied to any other layer type and have no learnable parameters. Dropout therefore is no real layer. During training, specified by a dropout probability $p$, parameters are randomly set to $0$. The purpose of dropout is to prevent model overfitting, i.e. preventing the model from memorizing instead of learning a dataset.
+Dropout can be applied to any other layer type and has no learnable parameters. Dropout therefore is no real layer. During training, specified by a dropout probability $p$, parameters are randomly set to $0$. The purpose of dropout is to prevent model overfitting, i.e. preventing the model from memorizing instead of learning a dataset.
 %
 \subsection{Model Objectives}
-The concept of \textit{model} is very important in Deep Learning. A model can be understood as a superordinate concept to a concrete implementation. We denote a model as $s_\theta(\vec{x})$, where $\vec{x}$ is the data input and $\theta$ is the set of all learnable parameters. The letter $s$ is chosen because we will discuss score-models in this thesis, but generally it is free of choice.
+The concept of \textit{model} is very important in Deep Learning. A model can be understood as a superordinate concept to a concrete network implementation. We denote a model as $s_\theta(\vec{x})$, where $\vec{x}$ is the data input and $\theta$ is the set of all learnable parameters. The letter $s$ is chosen because we will discuss score-models in this thesis, but generally it is free of choice.
 
 The formulation of a model then can be used to formulate \textit{objectives}. An objective is a function that represents the task the model is trying to accomplish. Usually the task is represented such that the objective function is to be minimized or maximized. As an example, imagine a model that has the task to approximate (learn) the function $x^2$. The objective of this task can be chosen as
 %
@@ -103,6 +103,6 @@ If the model is dependent on additional information, e.g. time $t$, the model is
 \section[Data Distributions and Probability Density Functions]{Data Distributions and Probability Density Functions%
     \sectionmark{Data Distributions and PDF}} \label{sec:3.3}
 \sectionmark{Data Distributions and PDF}
-Statistical Data Distributions and Stochastic Processes play a large role in the theory behind Score-Based Generative Models. When describing the goal of a model it is often said that the model tries to learn the data distribution of a dataset. The data distribution $p_{data}(\vec{x})$ of a dataset $D\subset\mathbb{R}^d$  describes how the data $\vec{x}\in D$ is distributed in relation to certain descriptive variables. In deep learning this concept is of a more theoretical nature. The data distribution describes \textit{all} possible data, e.g. all images of cars. Obviously a real dataset cannot contain an infinite amount of images. This is why the data distribution is \textit{impossible} to know (otherwise deep learning would be really unnecessary $\dots$). The real dataset has the following relation to the data distribution: $D=\{\vec{x}_i\}_{i=1}^N\overset{i.i.d}{\sim}p_{data}(\vec{x})$. The $\sim$ means that $D$ is distributed as $p_{data}$ and $N$ denotes the finite number of data in the dataset. $D\subset D^*$ where $D^*$ is the infinite, perfect dataset. In order for the model being able to learn the data distribution from a subset of $D^*$ the data in $D$ must be \textit{independent and identically distributed} (i.i.d) which essentially means that $D$ should replicate the data distribution as best as possible.
+Statistical Data Distributions and Stochastic Processes play a large role in the theory behind Score-Based Generative Models. When describing the goal of a model it is often said that the model tries to learn the data distribution of a dataset. The data distribution $p_{data}(\vec{x})$ of a dataset $D\subset\mathbb{R}^d$  describes how the data $\vec{x}\in D$ is distributed in relation to certain descriptive variables. In deep learning this concept is of a more theoretical nature. The data distribution describes \textit{all} possible data, e.g. all images of cars. Obviously a real dataset cannot contain an infinite amount of images. This is why the data distribution often is impossible to know. The real dataset has the following relation to the data distribution: $D=\{\vec{x}_i\}_{i=1}^N\overset{i.i.d}{\sim}p_{data}(\vec{x})$. The $\sim$ means that $D$ is distributed as $p_{data}$ and $N$ denotes the finite number of data in the dataset. $D\subset D^*$ where $D^*$ is the infinite, perfect dataset. In order for the model being able to learn the data distribution from a subset of $D^*$, the data in $D$ must be \textit{independent and identically distributed} (i.i.d) which essentially means that $D$ should replicate the data distribution as best as possible.
 
-Each distribution can also be represented as a probability density function (pdf) $p(\vec{x})$. While a data distribution shows the frequency of certain variables and often is discrete a pdf is a continuos function describing the probability of the variables in a distribution. Throughout this work, there will be a few occasions when pdfs $p(\vec{x})$ and data distributions $p_{data}(\vec{x})$ will be used as equivalents. This small mathematical inaccuracy originates from different mathematical derivations in different papers. The choice of using pdfs or data distribution is always based on the best understanding for the reader.
+Each distribution can also be represented as a \textit{probability density function} (pdf) $p(\vec{x})$. While a data distribution shows the frequency of certain variables and often is discrete a pdf is a continuos function describing the probability of the variables in a distribution. Throughout this work, there will be a few occasions when pdfs $p(\vec{x})$ and data distributions $p_{data}(\vec{x})$ will be used as equivalents. This small mathematical inaccuracy originates from different mathematical derivations in different papers. The choice of using pdfs or data distribution is always based on the best understanding for the reader.
