@@ -328,7 +328,60 @@ Given the same maximum noise scale $\sigma_{max}\approx338$ as for NSCN++ and a 
 \end{figure}
 %
 \subsection{Finding optimal sampling parameters}
+
+
+%
+\begin{figure} \label{fig:5.5}
+    \tiny
+    \centering
+    \setlength\tabcolsep{-2pt}
+    \begin{tabular}{ccc}
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/cityscapes/1_uncond_sample.png} & 
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/cityscapes/3_uncond_sample.png} & 
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/cityscapes/8_uncond_sample.png}\\
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/cityscapes/6_uncond_sample.png} & 
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/cityscapes/10_uncond_sample.png} & 
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/cityscapes/18_uncond_sample.png} 
+    \end{tabular}
+    \caption{Unconditional samples of NCSN++ trained on the Cityscapes dataset}
+\end{figure}
+
 \subsection{Results and Quantitative Comparisons} \label{sec:5.4.4}
+
+%
+\begin{figure} \label{fig:5.5}
+    \small
+    \centering
+    \setlength\tabcolsep{1pt}
+    \begin{tabular}{cccc}
+        \rotatebox{90}{\text{ }Semantic Map} &
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000008_000019_leftImg8bit_mask.png} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000139_000019_leftImg8bit_mask.png}& 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/frankfurt_000000_001236_leftImg8bit_mask.png}
+        \\
+        \rotatebox{90}{NCSN++ \cite{score_3}} &
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000008_000019_leftImg8bit_sample.png} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000139_000019_leftImg8bit_sample.png} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/frankfurt_000000_001236_leftImg8bit_sample.png}
+        \\
+        \rotatebox{90}{\text{ }\text{ }\text{ }\text{ }CRN \cite{crn}} &
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000008_000019_gtFine_color.png} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000139_000019_gtFine_color.png} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/frankfurt_000000_001236_gtFine_color.png} 
+        \\
+        \rotatebox{90}{pix2pixHD \cite{pix2pixHD}} &
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000008_000019_gtFine_labelIds_synthesized_image.jpg} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000139_000019_gtFine_labelIds_synthesized_image.jpg} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/frankfurt_000000_001236_gtFine_labelIds_synthesized_image.jpg}
+        \\
+        \rotatebox{90}{\text{ }\text{ }SPADE \cite{spade}} &
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000008_000019_leftImg8bit.png} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/munster_000139_000019_leftImg8bit.png} & 
+        \includegraphics[width=0.31\textwidth]{Chapters/figures/experiments/cityscapes/cond/frankfurt_000000_001236_leftImg8bit.png}
+    \end{tabular}
+    \caption{Comparison on the Cityscapes dataset}
+\end{figure}
+
 
 \begin{table}[]
     \centering
@@ -336,8 +389,8 @@ Given the same maximum noise scale $\sigma_{max}\approx338$ as for NSCN++ and a 
          \toprule
          &  CRN \cite{crn} & pix2pixHD \cite{pix2pixHD} & SPADE \cite{spade} & NCSN++ \cite{score_3} & Oracle\\
          \midrule
-        Mean IoU & 53.45 & 51.72 & 61.91 & 30.57 & 61.81\\
-        Pixel acc & 74.86 & 79.59 & 81.50 & 74.95 & 81.00\\
+        Mean IoU & 53.45 & 51.72 & \textbf{61.91} & 30.57 & 61.81\\
+        Pixel acc & 74.86 & 79.59 & \textbf{81.50} & 74.95 & 81.00\\
         \bottomrule
     \end{tabular}
     \caption[Semantic segmentation scores on Cityscapes dataset]{Semantic segmentation scores on results by different
@@ -354,7 +407,7 @@ methods on the Cityscapes dataset \cite{cityscapes}}
          FID & 71.43 & 83.91 & \textbf{56.03} & 68.85\\
          \bottomrule
     \end{tabular}
-    \caption{Caption}
+    \caption{FID scores on results by different methods on the Cityscapes dataset \cite{cityscapes}}
     \label{tab:my_label}
 \end{table}
 
