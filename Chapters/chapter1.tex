@@ -4,7 +4,7 @@
 We as humans have been born as intelligent living beings. We use this intelligence to create things of indescribable creativity and complexity. All the more understandable is the drive to understand this creative process and to reproduce it artificially. And it is this drive that gave rise to a new branch of research in computer sciences, which finally led to the concept of \textit{Generative Modeling}.
 
 \thispagestyle{plain}
-Generative Modeling is an umbrella term describing artificial approaches to generate realistic data. The current state-of-the-art approaches are dominated by so called \textit{Deep Neural Networks}, complex artificial constructs which are partially inspired by the human brain. These networks are implemented as a computer program, using modern machine learning libraries such as \textit{PyTorch} \cite{pytorch} or \textit{Tensorflow} \cite{tensorflow}.
+Generative Modeling is an umbrella term describing artificial approaches to generate realistic data. The current state-of-the-art approaches are dominated by so called \textit{Deep Neural Networks}, complex artificial constructs which are partially inspired by the human brain. These networks are implemented as a computer program, using modern machine learning libraries such as \textit{PyTorch} \cite{pytorch} or \textit{TensorFlow} \cite{tensorflow}.
 
 %
 \begin{figure}[] \label{fig:1.1}
@@ -22,7 +22,7 @@ In the last years generative modeling has seen an \textbf{immense} progress in g
 \thispagestyle{plain}
 "Creating noise from data is easy; creating data from noise is generative modeling" \cite{score_3}. This quote describes the operating principle of a novel model for generating data (\hyperref[sec:1.1]{Sec.\,1.1}), which we will explore in various ways in this paper.
 
-The so called \textit{Score-Based Generative Models} (SGMs) were recently proposed by Yang Song and Stefano Ermon \cite{score_1} in late 2020. As a generative model SGMs can be used to generate all kinds of data such as images, audio and graphs and they are capable of performing a variety of special tasks such as inpainting, colorization and image-to-image translation. As shown in outstanding results from recent work \cite{score_3} they are capable to keep up with state-of-the-art generative models such as Generative Adversarial Networks (GANs) \cite{gan_original} and Variational Autoencoders (VAEs) \cite{vae_original}. Therefore SGMs have gained great attention in the scientific community and are already considered by some to be the "new contenders to GANs" \cite{blog}.
+The so-called \textit{Score-Based Generative Models} (SGMs) were recently proposed by Yang Song and Stefano Ermon \cite{score_1} in late 2020. As a generative model SGMs can be used to generate all kinds of data such as images, audio and graphs and they are capable of performing a variety of special tasks such as inpainting, colorization and image-to-image translation. As shown in outstanding results from recent work \cite{score_3} they are capable to keep up with state-of-the-art generative models such as Generative Adversarial Networks (GANs) \cite{gan_original} and Variational Autoencoders (VAEs) \cite{vae_original}. Therefore, SGMs have gained great attention in the scientific community and are already considered by some to be the "new contenders to GANs" \cite{blog}.
 
 \thispagestyle{plain}
 Score-Based Generative Models work by estimating the score of a given data distribution via score matching \cite{score_matching_original}. Because the score estimating technique is unstable or ill-defined for a real data distribution the initial images are perturbed by Gaussian noise. Starting from random noise, SGMs are able to generate completely new data.
@@ -32,12 +32,12 @@ Score-Based Generative Models work by estimating the score of a given data distr
 \begin{figure}[]
     \centering
     \includegraphics[width=0.8\textwidth]{Chapters/figures/sgm.PNG}
-    \caption[The idea of Score-Based Generative Models]{The idea of SGMs: First the data distribution is perturbed via a diffusion process governed by a SDE. The scores of the noise distributions are learned by the score-model and are then used to solve a reverse SDE to generate new data from noise. Figure from \cite{score_3}.}
+    \caption[The idea of Score-Based Generative Models]{The idea of SGMs: First the data distribution is perturbed via a diffusion process governed by a SDE. The scores of the noise distributions are learned by the score model and are then used to solve a reverse SDE to generate new data from noise. Figure from \cite{score_3}.}
 \end{figure}
 %
 
 \thispagestyle{plain}
-SGMs have several advantages to other popular models. They do not rely on adversarial training, which is often unstable, they do not need a special architecture in order to be tractable, they do not need sampling during training and they can be used for different tasks such as inpainting, class-conditional generation and colorization without the need to retrain the model. Although SGMs are very slow in sampling, they have the advantage that there is an arbitrary possibility of combinations of sampling techniques and model architectures, allowing the search for a best-possible sampling procedure. All in all these properties, together with the high quality of the recent results, make SGMs a promising new model for generative modeling.
+SGMs have several advantages to other popular models. They do not rely on adversarial training, which is often unstable, they do not need a special architecture in order to be tractable, they do not need sampling during training and they can be used for different tasks such as inpainting, class-conditional generation and colorization without the need to retrain the model. Although SGMs are very slow in sampling, they have the advantage that there is an arbitrary possibility of combinations of sampling techniques and model architectures, allowing the search for a best-possible sampling procedure. All in all, these properties, together with the high quality of the recent results, make SGMs a promising new model for generative modeling.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Semantic Segmentation and Semantic Synthesis} 
 \thispagestyle{plain}
@@ -48,9 +48,9 @@ SGMs have several advantages to other popular models. They do not rely on advers
     \caption[Operating principle of semantic segmentation and semantic image synthesis]{Operating principle of semantic segmentation and semantic image synthesis. Images from Cityscapes dataset \cite{cityscapes}}
 \end{figure}
 %
-Two large fields in image based machine learning are semantic segmentation and semantic image synthesis. In semantic segmentation so called semantic segmentation networks have the task of a pixel-wise classification of images. In semantic image synthesis – unlike unconditioned image generation \cite{score_3} – images are generated based one a given semantic label map.
+Two large fields in image-based machine learning are semantic segmentation and semantic image synthesis. In semantic segmentation so-called semantic segmentation networks have the task of a pixel-wise classification of images. In semantic image synthesis – unlike unconditioned image generation \cite{score_3} – images are generated based on a given semantic label map.
 
-In this thesis we show that Score-Based Generative Models, with the help of semantic segmentation networks, are capable of synthesizing realistic looking images based on semantic label maps for various resolutions up to $1024\times512$ and datasets such as Cityscapes \cite{cityscapes}, ADE20K \cite{ade20k} and landscape images scraped from flickr. We show that the synthesized images for some categories can keep up with or even surpass state of the art generative models such as CRN \cite{crn}, pix2pixHD \cite{pix2pixHD}, and SPADE \cite{spade}, although there is still room for further improvement. We therefore show how the current technique could be optimized in future work to yield even better results. 
+In this thesis we show that Score-Based Generative Models, with the help of semantic segmentation networks, are capable of synthesizing realistic looking images based on semantic label maps for various resolutions up to $1024\times512$ and datasets such as Cityscapes \cite{cityscapes}, ADE20K \cite{ade20k} and landscape images scraped from Flickr. We show that the synthesized images for some categories can keep up with or even surpass state of the art generative models such as CRN \cite{crn}, pix2pixHD \cite{pix2pixHD}, and SPADE \cite{spade}, although there is still room for further improvement. We therefore show how the current technique could be optimized in future work to yield even better results. 
 
 \thispagestyle{plain}
 The implementation for this work is done with PyTorch and the code is publicly available on GitHub at the following links: 
