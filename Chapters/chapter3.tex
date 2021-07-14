@@ -39,7 +39,7 @@ FCN builds on this architecture by replacing the fully connected layers with $1\
 %
 \begin{figure} \label{fig:3.4}
     \centering
-    \includegraphics[width=.65\textwidth]{Chapters/figures/fcn2.PNG}
+    \includegraphics[width=.75\textwidth]{Chapters/figures/fcn2.PNG}
     \caption[FCN upsampling process]{Upsampling by successively combining the output of all max pooling layers. Image from \cite{fcn}}
 \end{figure}
 %
@@ -76,7 +76,7 @@ A VAE solves this problem by ensuring that the latent space has good properties 
 \end{figure}
 %
 \subsubsection{Generative Adversarial Networks} \label{sec:gans}
-GANs were proposed in 2014 \cite{gan_original} and have since seen great success and a lot of adaptions. GANs work by combining two models: A generator model and a discriminator model. These two models are trained at the same time and have an adversarial relationship to each other. Adversarial in that sense means that the generator and discriminator have opposing objectives. 
+GANs were proposed in 2014 \cite{gan_original} and have since then seen great success and a lot of adaptions. GANs work by combining two models: A generator model and a discriminator model. These two models are trained at the same time and have an adversarial relationship to each other. Adversarial in that sense means that the generator and discriminator have opposing objectives. 
 
 The generator $G(\vec{x})$ has the task of generating samples of the data distribution $p_{data}(\vec{x})$. The discriminator $D(\vec{x})$ has the role of distinguishing the generated data $\tilde{\vec{x}}$ from the real data $\vec{x}$. To be more precise, the task of the generator is to best possible trick the discriminator that at the same time has the task to best possible decide if an image is real or fake (generated). If the discriminator correctly identifies a generated image as fake the generator is punished to produce better images. Obviously, "better" just means that the images are more likely to fool the discriminator, which does not necessarily equate to a real-looking image if the discriminator performs poorly. When the discriminator is deceived by the generator, it is punished to better discriminate real and fake images. While GANs can produce excellent samples and are fast at sampling, it is easy to imagine how hard it is to train two networks at the same time. If not properly adjusted training quickly becomes unstable.
 
@@ -143,7 +143,7 @@ pix2pixHD \cite{pix2pixHD} is the successor of the older pix2pix \cite{pix2pix} 
 
 The pix2pix framework works as a classical conditional GAN model in a supervised setting. The generator $G$ has the task to translate a given semantic map to a realistic-looking image, while the discriminator $D$ has the task to distinguish between generated image and the original image for the semantic map.
 
-The pix2pixHD model improves this framework by proposing a coarse-to-fine generator and a multi-scale discriminator. The coarse-to-fine generator essentially is a generator made up of multiple single generators ${G_1, G_2, \dots}$ gradually working on higher resolutions of the image. The multi-scale discriminator addresses the need for a high receptive field for high resolution discrimination. Normally to achieve a higher receptive field either a deeper network or larger convolutional kernels are needed, both leading to increased model capacity and potentially overfitting. Therefore, the multi-scale discriminator consists of three individual discriminators $D_1, D_2, D_3$ each operating on different resolutions. In accordance with the GAN objective in \hyperref[equ:3.3]{Equ.\,3.3} becomes
+The pix2pixHD model improves this framework by proposing a coarse-to-fine generator and a multi-scale discriminator. The coarse-to-fine generator essentially is a generator made up of multiple single generators ${G_1, G_2, \dots}$ gradually working on higher resolutions of the image. The multi-scale discriminator addresses the need for a high receptive field for high resolution discrimination. Normally to achieve a higher receptive field either a deeper network or larger convolutional kernels are needed, both leading to increased model capacity and potentially overfitting. Therefore, the multi-scale discriminator consists of three individual discriminators $D_1, D_2, D_3$ each operating on different resolutions. In accordance with the GAN objective in \hyperref[equ:3.3]{Equ.\,3.3} one gets
 %
 \begin{equation}
     \underset{G}{\min}\underset{D_1,D_2,D_3}{\max}\sum_{k=1,2,3}E(G,D_k)\,.
@@ -160,7 +160,7 @@ The generator $G$ is not indexed because the generators $G_i$ are not trained co
     \caption[]{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
 \end{wrapfigure}
 %
-SPADE \cite{spade} actually is no model itself, but the proposal of a new layer for semantic image synthesis: The \textbf{SP}atially-\textbf{A}daptive (\textbf{DE}-)Normalization Layer. In their paper the authors test their new layer as an extension to the pix2pixHD model (\hyperref[sec:3.2.2]{Sec.\,3.2.2}). 
+SPADE \cite{spade} actually is no model itself, but the proposal of a new layer for semantic image synthesis: The \textbf{SP}atially-\textbf{A}daptive (\textbf{DE}-~)Normalization Layer. In their paper the authors test their new layer as an extension to the pix2pixHD model (\hyperref[sec:3.2.2]{Sec.\,3.2.2}). 
 
 Usually in normalization layers such as Batch Normalization (see \hyperref[equ:2.3]{Equ.\,2.3}), the activations of a layer are first normalized to zero mean and unit variance. Thereafter the normalized activation is denormalized using learned parameters. These learned parameters have no information of the semantic map and are the same for all values in $w_i\times h_i$, i.e. they are not spatially-adaptive. This behavior leads to information loss during normalization.
 
@@ -170,7 +170,7 @@ The SPADE layer solves the normalization problem where segmentation map informat
     h_{n,c,y,x,norm}^i=\gamma_{c,y,x}^i(\vec{m})\frac{h_{n,c,y,x}^i-\mu_c^i}{\sigma_c^i}+\beta_{c,y,x}^i(\vec{m}).
 \end{equation}
 %
-This equation is in index notation where $n\in N$ is the batch size, $c\in C^i$ is the channel size, $y\in H^i$ the vertical pixel position and $x\in W^i$ the horizontal pixel position. $\vec{m}$ is the target segmentation map and $\mu_c^i$ and $\sigma_c^i$ are the mean and standard deviation of $\vec{h}^i$ in channel $c$, defined by 
+This equation is in index notation where $n\in [1,N]$ is the batch size, $c\in [1,C^i]$ is the channel size, $y\in [1,H^i]$ the vertical pixel position and $x\in [1,W^i]$ the horizontal pixel position. $\vec{m}$ is the target segmentation map and $\mu_c^i$ and $\sigma_c^i$ are the mean and standard deviation of $\vec{h}^i$ in channel $c$, defined by 
 %
 \begin{align}
     \mu_c^i&=\frac{1}{NH^iW^i}\sum_{n,y,x}h_{n,c,y,x}^i\\[1ex]
