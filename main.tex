@@ -50,17 +50,19 @@
 \thispagestyle{empty}
 \input{Chapters/acknowledgements}
 \afterpage{\blankpage}
+\newpage
 
-\chapter*{Abstract}
+\chapter*{Abstract} \setstretch{1.25}
 \input{Chapters/abstract}
 \thispagestyle{empty}
 \afterpage{\blankpage}
 
+\setstretch{1.3}
 \setcounter{tocdepth}{1}
 \tableofcontents
 \thispagestyle{empty}
 \addtocontents{toc}{\protect\thispagestyle{empty}}
-\afterpage{\blankpage}
+%\afterpage{\blankpage}
 
 
 
@@ -70,7 +72,7 @@
 
 \chapter{Background}
 \input{Chapters/chapter2}
-
+\afterpage{\blankpage}
 
 
 
@@ -78,24 +80,24 @@
 \input{Chapters/chapter3}
 
 
-\chapter{Score-Based Generative Models} %5-7
+\chapter{Score-Based Generative Models}
 \chaptermark{SGM}
 \input{Chapters/chapter4}
-
+\afterpage{\blankpage}
 
 
 
 \chapter{Implementation and Experiments} \label{chap:5}
 \chaptermark{Experiments}
 \input{Chapters/chapter5}
+\afterpage{\blankpage}
 
+\chapter{Conclusion and Outlook} 
+\input{Chapters/chapter6}
 
-\chapter{Conclusions and Outlook} %2-3
-%min 32 max 47
 \appendix 
 \chapter{Supplementary Materials}
-\section{Cityscapes samples}
-\section{S-FLCKR samples}
+\input{Chapters/appendix}
 
 \chapter{Lists}
 \listoffigures

@@ -112,7 +112,6 @@ which can be interpreted as the discriminator trying to minimize its error, whil
 In this thesis the results of our score-based generative semantic image synthesis model are compared with the results of state-of-the-art models of different architecture. All models used for comparison are briefly explained below:
 
 \subsection{Cascaded Refinement Networks} \label{sec:3.2.1}
-Photographic Image Synthesis with Cascaded Refinement Networks (CRN) \cite{crn}, a work from 2017, proposed one of the first models being able to synthesize convincing photographic
 %
 \begin{wrapfigure}{r}{0.45\textwidth}
     \begin{center}
@@ -121,7 +120,7 @@ Photographic Image Synthesis with Cascaded Refinement Networks (CRN) \cite{crn},
     \caption[]{\textit{Top}: Semantic map, \\\textit{Bottom}: Sample image}
 \end{wrapfigure}
 %
-looking images from semantic maps. Unlike other popular models to that time the proposed model does not depend on adversarial training, therefore is no GAN. In fact, CRN is a simple feedforward convolutional network, so it is not a VAE either. Actually, due to the fact that the generated image is fixed for each input (i.e. non-probabilistic), CRN is not even considered a true generative model. The reason to try a feedforward model for image generation is mainly due to the problems of other models (mostly GANs) at that time. There especially were problems of GANs not scaling up to higher resolution \cite{crn}. Also, GANs back then were very unstable to train and therefore "remain remarkably difficult to train"
+Photographic Image Synthesis with Cascaded Refinement Networks (CRN) \cite{crn}, a work from 2017, proposed one of the first models being able to synthesize convincing photographic looking images from semantic maps. Unlike other popular models to that time the proposed model does not depend on adversarial training, therefore is no GAN. In fact, CRN is a simple feedforward convolutional network, so it is not a VAE either. Actually, due to the fact that the generated image is fixed for each input (i.e. non-probabilistic), CRN is not even considered a true generative model. The reason to try a feedforward model for image generation is mainly due to the problems of other models (mostly GANs) at that time. There especially were problems of GANs not scaling up to higher resolution \cite{crn}. Also, GANs back then were very unstable to train and therefore "remain remarkably difficult to train"
 \cite{crn}.
 
 The CRN works as a cascade of refinement modules $M^i$. Each refinement module consists of three layers: The input layer, an intermediate layer and the output layer. Each of these layers is followed by a $3\times3$ convolution, a layer normalization and a LReLu activation function. 
