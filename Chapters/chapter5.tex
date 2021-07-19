@@ -472,13 +472,13 @@ methods on the Cityscapes dataset. Oracle describes scores on original images}
 In the experiment on the Cityscapes dataset in \hyperref[sec:5.4]{Sec.\,5.4} we found that our semantic image synthesis model performs poor on fine structures like persons and traffic lights but good on coarse structures like streets, cars and vegetation. For that reason, we want to test our model on a dataset with fewer labels and more coarse structures. Inspired by impressive results from Esser and Rombach \cite{taming} on a dataset called \textit{S-FLCKR} which contains $79266$ landscape images from the image platform Flickr, we chose to test our model on this dataset. The semantic maps for these images were generated with a COCO-stuff \cite{coco_stuff} segmentation network which also contains some landscape labels. Since these generated semantic maps are far from perfect, they do not represent \textit{ground truth} and therefore most quantitative measures cannot be applied to our results.
 
 \subsection{Training and Sampling}
-For training of our models, we use the same model parameters as described in \hyperref[sec:5.4]{Sec.\,5.4}, except for the maximum Euclidean distance, which was calculated to be $\sigma_{max}\approx440$. With a batch size of $8$ resp. $22$, NCSN++ and U-Net were trained for $30$ resp. $10$ epochs. One important deviation from the training procedure for the Cityscapes dataset is that the landscape images are of various resolutions up to $1024\times2048$ and so the models were trained on $512\times512$ randomly cropped and horizontally flipped images. This higher training resolution will allow us to sample images of higher resolution but also drastically increases vRAM usage during NSCN++ training to $\approx80GB$ and sampling time to $\approx1$\,h per sample. We present loss curves as well as mIoU and pixel accuracy curves in \hyperref[fig:]{Fig.\,TODO} and \hyperref[fig:]{Fig.\,TODO}.
+For training of our models, we use the same model parameters as described in \hyperref[sec:5.4]{Sec.\,5.4}, except for the maximum Euclidean distance, which was calculated to be $\sigma_{max}\approx440$. With a batch size of $8$ resp. $22$, NCSN++ and U-Net were trained for $30$ resp. $10$ epochs. One important deviation from the training procedure for the Cityscapes dataset is that the landscape images are of various resolutions up to $1024\times2048$ and so the models were trained on $512\times512$ randomly cropped and horizontally flipped images. This higher training resolution will allow us to sample images of higher resolution but also drastically increases vRAM usage during NSCN++ training to $\approx80GB$ and sampling time to $\approx1$\,h per sample. We present loss curves as well as mIoU and pixel accuracy curves in \hyperref[fig:5.13]{Fig.\,5.13} and \hyperref[fig:5.14]{Fig.\,5.14}.
 
 In order to get a semantic segmentation network that works well on landscapes, we condensed the $182$ class labels of COCO-stuff to $6$ landscape classes – Sea, Mountain, Grass, Forest, Sky, Clouds – and one "unlabeled" class. During training, the model is penalized only for incorrect predictions on the $6$ landscape images. For sampling, we drew our own semantic maps using the $6$ classes described above.
 
-For the sampling parameters $s_0$ and $snr$, no quantitative experiments were conducted, because the enormous sampling time of $\approx1$\,h per image did not allow us to accumulate enough samples for an extended analysis. Qualitative examinations together with the insights from \hyperref[sec:5.4.4]{Sec.\,5.4.4} let us conclude that $s_0=0.1$ and $snr=TODO$ work fine for the S-FLCKR dataset. A few unconditional sample can be found in \hyperref[fig:]{Fig.\,TODO}.
+For the sampling parameters $s_0$ and $snr$, no quantitative experiments were conducted, because the enormous sampling time of $\approx1$\,h per image did not allow us to accumulate enough samples for an extended analysis. Qualitative examinations together with the insights from \hyperref[sec:5.4.4]{Sec.\,5.4.4} let us conclude that $s_0=0.00002$ and $snr=0.1$ work okay for the S-FLCKR dataset. Furthermore, we adjusted the start value in \hyperref[equ:5.5]{Equ.\,5.5} from $0.8$ to $0.7$ because the curves in figure \hyperref[fig:5.14]{Fig.\,5.14} show that the semantic segmentation network performs poorly for $t>0.7$. One unconditional sample can be found in \hyperref[fig:5.15]{Fig.\,5.15}, more are presented in \hyperref[tab:a2]{Tab.\,A2}.
 %
-\begin{figure}[] \label{fig:3.2}
+\begin{figure}[] \label{fig:5.13}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{Chapters/figures/experiments/flickr/loss_flickr_seg.jpg}
@@ -492,7 +492,7 @@ For the sampling parameters $s_0$ and $snr$, no quantitative experiments were co
 \end{figure}
 %
 %
-\begin{figure}[]
+\begin{figure}[] \label{5.14}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
@@ -507,7 +507,33 @@ For the sampling parameters $s_0$ and $snr$, no quantitative experiments were co
     \caption[Pixel accuracy and mIoU for U-Net on S-FLCKR dataset]{Pixel accuracy and mean IoU for noise-conditional U-Net trained on the S-FLCKR dataset}
 \end{figure}
 %
+\begin{figure} \label{fig:5.15}
+    \centering
+    \includegraphics[width=0.87\textwidth]{Chapters/figures/appendix/flickr/7_uncond_sample.png}
+    \caption{An unconditional sample of NCSN++ trained on the S-FLCKR dataset}
+\end{figure}
+
 \subsection{Results}
+We show one of our conditional samples in \hyperref[fig:5.16]{Fig.\,5.16} and some more in \hyperref[tab:a3]{Tab.\,A3}. As one can see the resulting image is not perfect in terms of texture quality and semantic map compliance. In this result we see one of the biggest disadvantages of our approach for semantic image synthesis: The long sampling time and the strong influence of small parameter changes on the sampling quality and semantic map compliance. Besides the parameters $snr$ and $s_0$ there are also the parameters defining the cases in \hyperref[equ:5.5]{Equ.\,5.5}. With a sampling time of $\approx1$\,h it is hard to find a setting that works flawlessly. Moreover, the samples for the S-FLCKR dataset were found to be much more sensitive to parameter changes than the samples for the Cityscapes dataset. For example, while for Cityscapes a parameter $s_0\in[0.001,0.004]$ produces results with only minor visible differences, for S-FLCKR a change from $s_0=0.00002$ to $0.00004$ changes the images quality by a lot. The same finding holds true for the other parameters. We show some samples with different parameters in \hyperref[5.17]{5.17}. 
+%
+\begin{figure} \label{fig:5.16}
+    \centering
+    \includegraphics[width=0.87\textwidth]{Chapters/figures/experiments/flickr/flickr_sample_1.PNG}
+    \caption[A conditional sample of NCSN++ trained on the S-FLCKR dataset]{A conditional sample of NCSN++ trained on the S-FLCKR dataset. Semantic map in bottom left corner}
+\end{figure}
+%
+\begin{figure}[] \label{fig:5.17}
+    \setlength\tabcolsep{1pt}
+    \centering
+    \begin{tabular}{ccc}
+        $s_0=0.00002$ & $s_0=0.00003$ & $s_0=0.0001$ \\
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/flickr/flickr_sample_1.PNG} & \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/flickr/2_sample.png} &
+        \includegraphics[width=0.33\textwidth]{Chapters/figures/experiments/flickr/1_sample.png}
+    \end{tabular}
+    \caption{Conditional S-FLCKR samples for different values of $s_0$}
+\end{figure}
+
+For us, it remains an open question for further research why the gradients of the semantic segmentation network affect the sampling quality in such an unintuitive way and how to mitigate these negative effects.
 
 \section[ADE20K - Pushing the model to its limits]{ADE20K - Pushing the model to its limits%
     \sectionmark{ADE20K}} \label{sec:5.6}
@@ -522,10 +548,10 @@ As in the previous experiments, we did not change any complex model parameters. 
 
 Sampling parameters were only qualitatively investigated, and it was found that a value of $snr=0.075$ for the signal-to-noise-ratio and $s_0=0.0025$ for the maximum scale factor produces decent results. As we will see in \hyperref[sec:5.6.3]{Sec.\,5.6.3}, there is no need for parameter fine-tuning since the resulting samples defy any quantitative analysis.
 
-The loss curves of U-Net and NCSN++ are presented in \hyperref[fig:]{Fig.\,TODO}. We also show some unconditioned samples in \hyperref[fig:]{Fig.\,TODO} which convincingly show why the ADE20K is considered a dataset for semantic image synthesis and not for general image generation.
+The loss curves of U-Net and NCSN++ are presented in \hyperref[fig:5.18]{Fig.\,5.18}. We also show some unconditioned samples in \hyperref[fig:5.20]{Fig.\,5.20} which convincingly show why the ADE20K is considered a dataset for semantic image synthesis and not for general image generation.
 
 %
-\begin{figure}[] \label{fig:3.2}
+\begin{figure}[] \label{fig:5.18}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{Chapters/figures/experiments/ade/loss_ade_seg.jpg}
@@ -538,7 +564,7 @@ The loss curves of U-Net and NCSN++ are presented in \hyperref[fig:]{Fig.\,TODO}
     \caption[Losses of U-Net/NCSN++ on ADE20K dataset]{Training and evaluation loss of U-Net and NCSN++ trained on the ADE20K dataset}
 \end{figure}
 %
-\begin{figure}[]
+\begin{figure}[] \label{5.19}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
@@ -553,7 +579,7 @@ The loss curves of U-Net and NCSN++ are presented in \hyperref[fig:]{Fig.\,TODO}
     \caption[Pixel accuracy and mIoU for U-Net on ADE20K dataset]{Pixel accuracy and mean IoU for noise-conditional U-Net trained on the ADE20K dataset}
 \end{figure}
 %
-\begin{figure} 
+\begin{figure} \label{5.20}
     \tiny
     \centering
     \setlength\tabcolsep{-2pt}
@@ -570,11 +596,11 @@ The loss curves of U-Net and NCSN++ are presented in \hyperref[fig:]{Fig.\,TODO}
 
 \subsection{Results} \label{sec:5.6.3}
 
-Some final samples of semantic image synthesis on the ADE20K dataset are presented in \hyperref[fig:]{Fig.\,TODO}. It is quite clearly visible that the sample images have only remotely anything to do with the original images. We do not see the reasons for this in the image quality of the NCSN++. It is true that the unconditional samples are not very realistic, but this was expected for a dataset such as ADE20K. Conversely, we even find that the unconditional samples of NCSN++ capture the character of the dataset quite well, and besides, the logical information should be provided by the semantic segmentation network anyway. Therefore, we suspect that the poor sample quality is more likely due to the semantic segmentation network not performing well on noisy images, which is supported by the findings \hyperref[fig:]{Fig.\,TODO}. However, we are not entirely sure why this poor segmentation performance leads to the very artistic-looking image style, as we see no evidence of this behavior in unconditional samples.
+Some final samples of semantic image synthesis on the ADE20K dataset are presented in \hyperref[fig:5.21]{Fig.\,5.21}. It is quite clearly visible that the sample images have only remotely anything to do with the original images. We do not see the reasons for this in the image quality of the NCSN++. It is true that the unconditional samples are not very realistic, but this was expected for a dataset such as ADE20K. Conversely, we even find that the unconditional samples of NCSN++ capture the character of the dataset quite well, and besides, the logical information should be provided by the semantic segmentation network anyway. Therefore, we suspect that the poor sample quality is more likely due to the semantic segmentation network not performing well on noisy images, which is supported by the findings \hyperref[fig:5.19]{Fig.\,5.19}. However, we are not entirely sure why this poor segmentation performance leads to the very artistic-looking image style, as we see no evidence of this behavior in unconditional samples.
 
 From the results of this experiment, we conclude that a simple noise-conditioned U-net simply does not perform well enough to be used in semantic image synthesis with SGMs for complex datasets. In order to generate good samples on such datasets, we assume that a semantic segmentation network specifically designed for noise-conditioned semantic segmentation must be developed.
 
-\begin{figure} \label{fig:5.5}
+\begin{figure} \label{fig:5.21}
     \tiny
     \centering
     \setlength\tabcolsep{-2pt}
