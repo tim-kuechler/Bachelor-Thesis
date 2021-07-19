@@ -24,7 +24,6 @@ As a qualitative proof of concept, we test the implementation on the MNIST \cite
     \end{subfigure}
     
     \caption[MNIST class-conditional results]{MNIST class-conditional results. \textit{Left:} 2, \textit{Middle:} 5, \textit{Right:} 8}
-    \label{fig:my_label}
 \end{figure}
 %
 
@@ -42,7 +41,7 @@ As mentioned above – because the forward SDE is tractable – we can easily ge
 %
 In \hyperref[equ:5.1]{Equ.\,5.1} $\vec{z}\sim\mathcal{N}(0, \vec{I})$ is Gaussian noise and $\sigma(t)$ is the noise scale for timestep $t$ which for the VE SDE is given by
 %
-\begin{equation} \label{5.2}
+\begin{equation} \label{equ:5.2}
     \sigma(t)=\sigma_{min}\cdot\left(\frac{\sigma_{max}}{\sigma_{min}}\right)^t.
 \end{equation}
 %
@@ -117,7 +116,7 @@ where $s_0$ is the maximum scale factor for a given dataset, which is determined
     \nabla_{\vec{x}}\log p_t(\vec{x})+s(t)\cdot\nabla_{\vec{x}}\log p_t(\vec{y}|\vec{x}).
 \end{equation}
 
-\begin{figure} \label{fig:5.4}
+\begin{figure} \label{fig:5.3}
     \tiny
     \centering
     \setlength\tabcolsep{-2pt}
@@ -247,13 +246,13 @@ As the version of NCSN \cite{score_3} does not support training on/sampling of n
 %
 As a first experiment, we want to test semantic image synthesis with SGMs on the Cityscapes dataset \cite{cityscapes} (\hyperref[sec:5.4.1]{Sec.\,5.4.1}). Because of the similar image scenery in every picture and the small number of classes the Cityscapes dataset is a relatively easy and therefore popular dataset for tasks as semantic segmentation and semantic image synthesis. For computational reasons we will work on downsampled images of size $512\times256$ pixels but later experiments on landscape images (\hyperref[sec:5.5]{Sec.\,5.5}) are also tasked to generate higher resolution images. We will investigate the influence of various model and sampling parameters on sampling quality in \hyperref[sec:5.4.3]{Sec.\,5.4.3}. Thereafter, we will compare our resulting samples with state-of-the-art semantic image synthesis models in \hyperref[sec:5.4.4]{Sec.\,5.4.4} using the evaluation metrics described in \hyperref[sec:5.4.2]{Sec.\,5.4.2} and a human perceptual study.
 
-\subsection{The Cityscapes dataset}
+\subsection{The Cityscapes dataset} \label{sec:5.4.1}
 The Cityscapes dataset \cite{cityscapes} is a dataset containing pictures of street scenes shot in various German cities in daylight and good/medium weather conditions. It contains $5000$ $2048\times1024$ $8$\,bit color images with a fine annotated label map for each image. Moreover, it contains $20{,}000$ images with coarse annotated label maps which were not used for the experiments. $500$ of the $5000$ images/label maps are only for validation. The maps of the validation images are later used as basis for semantic image synthesis and the generated images are then compared to the $500$ original images to compute FID scores (\hyperref[sec:fid]{Sec.\,5.4.2}). Each semantic label map consists of $30$ classes, e.g. street, car, bus, \dots. We combine $11$ of these classes to one common background class, so we work with $20$ training classes in total.
 %
 \subsection{Metrics} \label{sec:5.4.2}
 In the course of the following experiments, different evaluation metrics are used to quantify the quality of the samples:
 %
-\subsubsection{Fréchet inception distance} \label{fid}
+\subsubsection{Fréchet inception distance} \label{sec:fid}
 The Fréchet inception distance (FID) \cite{fid} is a metric for evaluating the quality of generated images in comparison to the real images and was initially developed to evaluate GAN performance. The goal of such score is to capture the similarities best possibly between real images and samples.
 
 FID uses the outputs of generated and original images of the Inception-v3 \cite{inception-v3} image recognition model. For each image, the output consists of $2048$ activation features. Between the two resulting collections of $2048$ feature vectors for generated and real images, the Fréchet distance defined as 
@@ -264,7 +263,7 @@ FID uses the outputs of generated and original images of the Inception-v3 \cite{
 %
 is calculated. Here $\mu_i$ are the feature-wise means of the real and generated images and $C_i$ are the covariance matrices for the real and generated feature vectors. In comparison to other evaluation scores, the FID score shows higher (worse) values for \text{all} kind of mutations such as noise, blur and distortions. However, it should be noted that a score is never able to truly capture the similarities a human would see between images. Even noise so small that it cannot be noticed by the human eye can lead to a worse FID score \cite{score_4}.
 
-\subsubsection{Pixel accuracy} \label{acc}
+\subsubsection{Pixel accuracy} \label{sec:acc}
 To evaluate the performance of a semantic segmentation network, the pixel accuracy for the predicted semantic map in relation to the true map can be used. The pixel accuracy is calculated via
 %
 \begin{equation}
@@ -388,9 +387,8 @@ As seen in \hyperref[sec:5.2.5]{Sec.\,5.2.5} the maximum scale factor $s_0$ is w
         \bottomrule
     \end{tabular}
     \caption[Evaluation of maximum scale factor on various scores]{Evaluation of maximum scale factor $s_0$ on various scores for the Cityscapes dataset}
-    \label{tab:my_label}
 \end{table}
-\subsection{Results and Quantitative Comparisons} \label{sec:5.4.4}
+\subsection{Results and Quantitative Comparisons} \label{sec:5.4.5}
 
 With the trained models and the sampling parameters $snr=0.1$ and $s_0=0.002$ we sampled images on all $500$ testing semantic label maps of the Cityscapes dataset. We further did the same for the models CRN \cite{crn}, pix2pixHD \cite{pix2pixHD} and SPADE \cite{spade}, either using pretrained models (CRN) or training them ourselves if no pretrained models were provided (pix2pixHD, SPADE) for resolution $512\times256$. It is worth noting that these $3$ models (and adaptations of them) are state-of-the-art models, occupying $6$ of the top $10$ places in semantic image synthesis benchmarks (sorting by mIoU) on the Cityscapes dataset (see \url{https://paperswithcode.com/sota/image-to-image-translation-on-cityscapes}). 
 %
@@ -448,7 +446,6 @@ All in all we conclude to things for this experiment: First, our approach of sem
     \end{tabular}
     \caption[Semantic segmentation scores on Cityscapes dataset]{Semantic segmentation scores on results by different
 methods on the Cityscapes dataset. Oracle describes scores on original images}
-    \label{tab:my_label}
 \end{table}
 
 \begin{table}[] \label{tab:5.5}
@@ -461,7 +458,6 @@ methods on the Cityscapes dataset. Oracle describes scores on original images}
          \bottomrule
     \end{tabular}
     \caption[FID scores on results by different methods on the Cityscapes dataset]{FID scores on results by different methods on the Cityscapes dataset}
-    \label{tab:my_label}
 \end{table}
 
 
@@ -492,7 +488,7 @@ For the sampling parameters $s_0$ and $snr$, no quantitative experiments were co
 \end{figure}
 %
 %
-\begin{figure}[] \label{5.14}
+\begin{figure}[] \label{fig:5.14}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
@@ -510,16 +506,16 @@ For the sampling parameters $s_0$ and $snr$, no quantitative experiments were co
 \begin{figure} \label{fig:5.15}
     \centering
     \includegraphics[width=0.87\textwidth]{Chapters/figures/appendix/flickr/7_uncond_sample.png}
-    \caption{An unconditional sample of NCSN++ trained on the S-FLCKR dataset}
+    \caption[An unconditional sample of NCSN++ trained on the S-FLCKR dataset]{An unconditional sample of NCSN++ trained on the S-FLCKR dataset. More samples in \hyperref[tab:a2]{Tab.\,A2}}
 \end{figure}
 
 \subsection{Results}
-We show one of our conditional samples in \hyperref[fig:5.16]{Fig.\,5.16} and some more in \hyperref[tab:a3]{Tab.\,A3}. As one can see the resulting image is not perfect in terms of texture quality and semantic map compliance. In this result we see one of the biggest disadvantages of our approach for semantic image synthesis: The long sampling time and the strong influence of small parameter changes on the sampling quality and semantic map compliance. Besides the parameters $snr$ and $s_0$ there are also the parameters defining the cases in \hyperref[equ:5.5]{Equ.\,5.5}. With a sampling time of $\approx1$\,h it is hard to find a setting that works flawlessly. Moreover, the samples for the S-FLCKR dataset were found to be much more sensitive to parameter changes than the samples for the Cityscapes dataset. For example, while for Cityscapes a parameter $s_0\in[0.001,0.004]$ produces results with only minor visible differences, for S-FLCKR a change from $s_0=0.00002$ to $0.00004$ changes the images quality by a lot. The same finding holds true for the other parameters. We show some samples with different parameters in \hyperref[5.17]{5.17}. 
+We show one of our conditional samples in \hyperref[fig:5.16]{Fig.\,5.16} and some more in \hyperref[tab:a3]{Tab.\,A3}. As one can see the resulting image is not perfect in terms of texture quality and semantic map compliance. In this result we see one of the biggest disadvantages of our approach for semantic image synthesis: The long sampling time and the strong influence of small parameter changes on the sampling quality and semantic map compliance. Besides the parameters $snr$ and $s_0$ there are also the parameters defining the cases in \hyperref[equ:5.5]{Equ.\,5.5}. With a sampling time of $\approx1$\,h it is hard to find a setting that works flawlessly. Moreover, the samples for the S-FLCKR dataset were found to be much more sensitive to parameter changes than the samples for the Cityscapes dataset. For example, while for Cityscapes a parameter $s_0\in[0.001,0.004]$ produces results with only minor visible differences, for S-FLCKR a change from $s_0=0.00002$ to $0.00004$ changes the images quality by a lot. The same finding holds true for the other parameters. We show some samples with different parameters in \hyperref[fig:5.17]{Fig.\,5.17}. 
 %
 \begin{figure} \label{fig:5.16}
     \centering
     \includegraphics[width=0.87\textwidth]{Chapters/figures/experiments/flickr/flickr_sample_1.PNG}
-    \caption[A conditional sample of NCSN++ trained on the S-FLCKR dataset]{A conditional sample of NCSN++ trained on the S-FLCKR dataset. Semantic map in bottom left corner}
+    \caption[A conditional sample of NCSN++ trained on the S-FLCKR dataset]{A conditional sample of NCSN++ trained on the S-FLCKR dataset. Semantic map in bottom left corner. More samples in \hyperref[tab:a3]{Tab.\,A3}}
 \end{figure}
 %
 \begin{figure}[] \label{fig:5.17}
@@ -528,7 +524,7 @@ We show one of our conditional samples in \hyperref[fig:5.16]{Fig.\,5.16} and so
     \begin{tabular}{cc}
         $s_0=0.000005$ & $s_0=0.00002$\\ 
         \includegraphics[width=0.5\textwidth]{Chapters/figures/experiments/flickr/4_sample.png} &
-        \includegraphics[width=0.5\textwidth]{Chapters/figures/experiments/flickr/flickr_sample_1.PNG} \\
+        \includegraphics[width=0.5\textwidth]{Chapters/figures/experiments/flickr/sample.png} \\
          $s_0=0.00004$ & $s_0=0.0001$ \\
         \includegraphics[width=0.5\textwidth]{Chapters/figures/experiments/flickr/2_sample.png} &
         \includegraphics[width=0.5\textwidth]{Chapters/figures/experiments/flickr/1_sample.png}
@@ -567,7 +563,7 @@ The loss curves of U-Net and NCSN++ are presented in \hyperref[fig:5.18]{Fig.\,5
     \caption[Losses of U-Net/NCSN++ on ADE20K dataset]{Training and evaluation loss of U-Net and NCSN++ trained on the ADE20K dataset}
 \end{figure}
 %
-\begin{figure}[] \label{5.19}
+\begin{figure}[] \label{fig:5.19}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
@@ -582,7 +578,7 @@ The loss curves of U-Net and NCSN++ are presented in \hyperref[fig:5.18]{Fig.\,5
     \caption[Pixel accuracy and mIoU for U-Net on ADE20K dataset]{Pixel accuracy and mean IoU for noise-conditional U-Net trained on the ADE20K dataset}
 \end{figure}
 %
-\begin{figure} \label{5.20}
+\begin{figure} \label{fig:5.20}
     \tiny
     \centering
     \setlength\tabcolsep{-2pt}

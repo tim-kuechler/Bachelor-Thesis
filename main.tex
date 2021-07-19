@@ -49,21 +49,19 @@
 \chapter*{Acknowledgements}
 \thispagestyle{empty}
 \input{Chapters/acknowledgements}
-\afterpage{\blankpage}
+\newpage\thispagestyle{empty}\text{ }\newpage
 \newpage
 
-\chapter*{Abstract} \setstretch{1.25}
+\chapter*{Abstract} \setstretch{1}
 \input{Chapters/abstract}
 \thispagestyle{empty}
-\afterpage{\blankpage}
+\newpage\thispagestyle{empty}\text{ }\newpage
 
 \setstretch{1.3}
 \setcounter{tocdepth}{1}
 \tableofcontents
 \thispagestyle{empty}
 \addtocontents{toc}{\protect\thispagestyle{empty}}
-%\afterpage{\blankpage}
-
 
 
 \mainmatter
@@ -72,7 +70,7 @@
 
 \chapter{Background}
 \input{Chapters/chapter2}
-\afterpage{\blankpage}
+\newpage\thispagestyle{plain}\text{ }\newpage
 
 
 
@@ -83,7 +81,7 @@
 \chapter{Score-Based Generative Models}
 \chaptermark{SGM}
 \input{Chapters/chapter4}
-\afterpage{\blankpage}
+\newpage\thispagestyle{plain}\text{ }\newpage
 
 
 
@@ -107,9 +105,10 @@
 
 \bibliography{bibliography}
 %\addcontentsline{toc}{chapter}{Bibliography}
-\afterpage{\blankpage}
+\newpage\thispagestyle{plain}\text{ }\newpage
 
 \chapter{Deposition}
 \input{Chapters/declaration}
 
 \end{document}
+̂
