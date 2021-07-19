@@ -9,7 +9,7 @@ Interestingly we found that the gradients computed on the WideResNet prediction 
 
 As a qualitative proof of concept, we test the implementation on the MNIST \cite{mnist} dataset, which contains handwritten digits in the range $0-9$ and was initially designed for handwriting recognition. Some of our results are shown in \hyperref[fig:5.1]{Fig.\,5.1}. We can conclude that the implementation works in general, although there are some samples that strongly deviate from the requested numbers. This is very likely due to the fact that for the implementation a very basic model and SDE were used. In further experiments the significantly more complicated NCSN++ model and the VE SDE were deployed.
 %
-\begin{figure}
+\begin{figure} \label{fig:5.1}
     \begin{subfigure}{0.3\textwidth} \label{abb:1a}
         \centering
         \includegraphics[width=\textwidth]{Chapters/figures/experiments/mnist/mnist_2.png}
@@ -92,7 +92,7 @@ As already touched upon in the previous section \hyperref[sec:5.1]{Sec.\,5.1} a 
 
 We are therefore interested in finding the time interval $T\subset[0,1]$ in which the gradients of the semantic segmentation network are the most needed, i.e. in which time interval important structural image information is formed and consolidated. With this information we hope to reduce the saturation effect on the final sample, because the semantic segmentation network is influencing the sample for a lower amount of time. We propose that for low noise ($t$ near $0$) the image structure is already consolidated and the semantic segmentation network only plays a minor role for generation. We further propose that for high noise ($t$ near $1$) the gradients of the segmentation network in theory would be beneficial for generation, but only if the network is capable to operate on high noise scales which we could not achieve up to maximum noise.
 
-Therefore, as a scaling function we propose a function that is $0$ in regions where the network performs badly and $1$, in regions where the networks performs reasonable, followed by a linear decrease to $0$ for regions where we suggest that the image structure has already consolidated. To find out these regions we perform two experiments. In the first experiment, we set the scale factor to $1$ for $t>t_{stop}$ and to $0$ for $t\leq t_{stop}$, where $t_{stop}$ is subsequently reduced from $1$ to $0$ for each sample. In the second experiment we introduce $t_{start}$ for which for $t<t_{start}$ the scale factor is $1$ and for $t\geq t_{start}$ the scale factor is $0$. The results – exemplary for one semantic map – can be seen in \hyperref[fig:5.4]{Fig.\,5.4} resp. \hyperref[fig:5.5]{Fig.\,5.5}.
+Therefore, as a scaling function we propose a function that is $0$ in regions where the network performs badly and $1$, in regions where the networks performs reasonable, followed by a linear decrease to $0$ for regions where we suggest that the image structure has already consolidated. To find out these regions we perform two experiments. In the first experiment, we set the scale factor to $1$ for $t>t_{stop}$ and to $0$ for $t\leq t_{stop}$, where $t_{stop}$ is subsequently reduced from $1$ to $0$ for each sample. In the second experiment we introduce $t_{start}$ for which for $t<t_{start}$ the scale factor is $1$ and for $t\geq t_{start}$ the scale factor is $0$. The results – exemplary for one semantic map – can be seen in \hyperref[fig:5.3]{Fig.\,5.3} resp. \hyperref[fig:5.4]{Fig.\,5.4}.
 
 %
 \begin{figure} \label{fig:5.2}
@@ -101,7 +101,7 @@ Therefore, as a scaling function we propose a function that is $0$ in regions wh
     \caption{The proposed scale factor function}
 \end{figure}
 %
-We come to the qualitative result that in order to get samples that match the semantic map, the semantic segmentation network has to be started at $t>65$ and can be stopped/decreased at $t<0.45$.  Based on the findings for these experiments, supplemented by the accuracy and mIoU curves in TODO, we generously conclude that for $t>0.8$ the segmentation network performs to badly to be helpful for generation and that for $t<0.45$ the structures in the image have already consolidated. We therefore propose the following scale function:
+We come to the qualitative result that in order to get samples that match the semantic map, the semantic segmentation network has to be started at $t>65$ and can be stopped/decreased at $t<0.45$.  Based on the findings for these experiments, supplemented by the accuracy and mIoU curves in \hyperref[fig:5.8]{Fig.\,5.8}, we generously conclude that for $t>0.8$ the segmentation network performs to badly to be helpful for generation and that for $t<0.45$ the structures in the image have already consolidated. We therefore propose the following scale function:
 %
 \begin{equation} \label{equ:5.5}
     s(t)=\begin{cases}
@@ -132,7 +132,7 @@ where $s_0$ is the maximum scale factor for a given dataset, which is determined
     \caption[Switching off the semantic segmentation network at different timesteps]{Switching off the semantic segmentation network at different timesteps $T\in[0,1]$}
 \end{figure}
 
-\begin{figure} \label{fig:5.5}
+\begin{figure} \label{fig:5.4}
     \tiny
     \centering
     \setlength\tabcolsep{-2pt}
@@ -165,16 +165,16 @@ vRAM usage and training speed are key aspects in training deep neural network. C
 
 To mitigate these problems, the concept of \textit{Mixed Precision Learning} \cite{mixed_prec} was developed, decreasing both vRAM usage and training time with simultaneous retention of training quality, i.e. training loss. Normally, each parameter of a network is stored as a float with $32$\,bits of precision. Considering a network with $\sim250$\,M parameters, this would be equivalent to $\sim1$\,GB. What sounds not so much at first quickly becomes unmanageable when thinking of the series of matrix arithmetic's the parameters undergo and each calculation storing extra data such as gradients. 
 
-The idea of mixed precision learning is to use floats with a $16$\,bit precision wherever possible. In order to not lose model accuracy, two concepts are applied. First, there is always a $32$\,bit master copy of the model weights. For the forward pass, this master copy is converted to $16$\,bit, where the complex gradient calculations happen. In the backward pass these $16$\,bit gradients are converted back to $32$\,bit where they are then used by the optimizer to update the master weights. But this improvement during gradient calculation comes with the flaw of losing some gradients as every number $<2^{-24}$ is equal to $0$ for $16$\,bit precision but in most models there is at least some relevant gradient information in the range $[2^{-27},2^{-24})$. To mitigate this effect the concept of loss scaling was proposed. Loss scaling multiplies the $32$\,bit loss after the forward pass by a scale factor to move them in the $16$\,bit range in which the gradients are then computed in the backward pass. Thereafter the scaled $16$\,bit gradients are converted to scaled $32$\,bit gradients and then divided by the same scale factor as before. Finally, these scaled gradients are used by the optimizer to update the master weights. The full concept can be seen in \hyperref[fig:3.2]{Fig. 3.2}.
+The idea of mixed precision learning is to use floats with a $16$\,bit precision wherever possible. In order to not lose model accuracy, two concepts are applied. First, there is always a $32$\,bit master copy of the model weights. For the forward pass, this master copy is converted to $16$\,bit, where the complex gradient calculations happen. In the backward pass these $16$\,bit gradients are converted back to $32$\,bit where they are then used by the optimizer to update the master weights. But this improvement during gradient calculation comes with the flaw of losing some gradients as every number $<2^{-24}$ is equal to $0$ for $16$\,bit precision but in most models there is at least some relevant gradient information in the range $[2^{-27},2^{-24})$. To mitigate this effect the concept of loss scaling was proposed. Loss scaling multiplies the $32$\,bit loss after the forward pass by a scale factor to move them in the $16$\,bit range in which the gradients are then computed in the backward pass. Thereafter the scaled $16$\,bit gradients are converted to scaled $32$\,bit gradients and then divided by the same scale factor as before. Finally, these scaled gradients are used by the optimizer to update the master weights. The full concept can be seen in \hyperref[fig:5.5]{Fig.\,5.5}.
 %
-\begin{figure}[] \label{fig:3.2}
+\begin{figure}[] \label{fig:5.5}
     \centering
     \includegraphics[width=.9\textwidth]{Chapters/figures/mixed_prec.PNG}
     \caption{Concept of Mixed Precision}
 \end{figure}
 %
 
-As the mixed precision technique was not used in the original SGM paper \cite{score_3} it was now implemented using off-the-shelf PyTorch tools for mixed precision, to check how much this technique improves vRAM usage and training time for the NCSN. To do so we trained the NCSN++ on the Cityscapes dataset on two different GPUs with the same model settings. For each GPU $2\times100$ epochs were passed, once with mixed precision on and once with mixed precision off. The first GPU was a \textit{Nvidia GeForce RTX 2080 Ti} with $11$\,GB of vRAM and the second GPU was a \textit{Nvidia A100} with $40$\,GB of vRAM. For both GPUs we used the maximum possible batch size for non-mixed precision training which is $1$ for the RTX 2080 Ti and $5$ for the A100. The effects of mixed precision training on vRAM usage and training time can be seen in \hyperref[tab:3.1]{Tab. 3.1} resp. \hyperref[tab:3.1]{Tab. 3.2}. For the vRAM usage the total vRAM needed is shown and for the training time the average training time for one epoch is shown.
+As the mixed precision technique was not used in the original SGM paper \cite{score_3} it was now implemented using off-the-shelf PyTorch tools for mixed precision, to check how much this technique improves vRAM usage and training time for the NCSN. To do so we trained the NCSN++ on the Cityscapes dataset on two different GPUs with the same model settings. For each GPU $2\times100$ epochs were passed, once with mixed precision on and once with mixed precision off. The first GPU was a \textit{Nvidia GeForce RTX 2080 Ti} with $11$\,GB of vRAM and the second GPU was a \textit{Nvidia A100} with $40$\,GB of vRAM. For both GPUs we used the maximum possible batch size for non-mixed precision training which is $1$ for the RTX 2080 Ti and $5$ for the A100. The effects of mixed precision training on vRAM usage and training time can be seen in \hyperref[tab:3.1]{Tab.\,3.1} resp. \hyperref[tab:3.1]{Tab.\,3.2}. For the vRAM usage the total vRAM needed is shown and for the training time the average training time for one epoch is shown.
 %
 \begin{table}[] \label{tab:3.1}
         \centering
@@ -202,9 +202,9 @@ As the mixed precision technique was not used in the original SGM paper \cite{sc
 \end{table}
 
 For the A100 serious improvements on vRAM usage can be observed. For the RTX 2080 Ti there are only little improvements for vRAM usage but good improvements on training time. In general, mixed precision is expected to perform way better on the new Ampere GPU
-architecture (A100) than on the older Turing GPU architecture (RTX 2080 Ti). To ensure that the training quality does not suffer from the use of mixed precision, the loss curves for all test setups are compared in \hyperref[fig:3.3]{Fig. 3.3}. The higher fluctuations for the RTX 2080 Ti are due to the fact that the batch size is smaller, therefore leading to major loss differences in a batch-to-batch comparison. In general, it can be seen that mixed precision has no notable effect on training loss. Also, a qualitative comparison of generated samples shows no difference perceptible by a human. We therefore conclude that – at least for non-FID records breaking attempts – mixed precision should be used and we do so for all upcoming experiments. It should be noted, however, that in a few cases, unstable behavior occurred during mixed-precision learning, resulting in $nan$ values at training loss. In these cases, the run had to be discarded.
+architecture (A100) than on the older Turing GPU architecture (RTX 2080 Ti). To ensure that the training quality does not suffer from the use of mixed precision, the loss curves for all test setups are compared in \hyperref[fig:5.6]{Fig.\,5.6}. The higher fluctuations for the RTX 2080 Ti are due to the fact that the batch size is smaller, therefore leading to major loss differences in a batch-to-batch comparison. In general, it can be seen that mixed precision has no notable effect on training loss. Also, a qualitative comparison of generated samples shows no difference perceptible by a human. We therefore conclude that – at least for non-FID records breaking attempts – mixed precision should be used and we do so for all upcoming experiments. It should be noted, however, that in a few cases, unstable behavior occurred during mixed-precision learning, resulting in $nan$ values at training loss. In these cases, the run had to be discarded.
 %
-\begin{figure} \label{fig:3.3}
+\begin{figure} \label{fig:5.6}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
@@ -222,8 +222,8 @@ architecture (A100) than on the older Turing GPU architecture (RTX 2080 Ti). To 
 \subsection{Training on arbitrary image sizes} %0.5-1
 When training a generative model, the image size the model gets as input for learning can have a large effect on what the model learns. Here not the total image size of the images is meant but the image size the model gets as input. As an example, the cityscapes dataset (downscaled) consists of $256\times512$ pixel images. To reduce vRAM during training, the images from the dataset often are randomly cropped to another resolution, here $256\times256$ pixels. For some datasets this has only little negative effects on the model accuracy, e.g. for landscapes where the relative position of objects to each other only plays a minor role. But for datasets as the cityscapes dataset it is quite important for realistic results that the model learns the logic of images showing street scenes, i.e. learning that the street is in the middle, that there are parking cars on the left and right side of the image and so on. Training on too small crops can hinder the model to learn such logic.
 
-As the version of NCSN \cite{score_3} does not support training on/sampling of non-square images, the model was adapted to do so. Actually, the model already was able to process non-square images natively, but there was a small bug that we fixed to make non-square training/sampling possible. To show the importance of this bugfix, we investigate the influence of the above described effect on NCSN. For this purpose, we trained two identical NCSN, one on $256\times256$ pixels crops and one on the $256\times512$ pixels original images. Some example results can be seen in \hyperref[fig:]{Fig.\,TODO}. It is clearly visible that the full image model outperforms the cropped image model when the focus of evaluation is on street scene logic. It must be mentioned that for semantic image synthesis – the task for our experiments – this logic information actually is given by the semantic map which initially gives rise to the idea of training on crops at all. Nevertheless, we suspect that a model knowing the logic without a semantic map also performs somewhat better than if it did not. For that reason, models for further experiments on the cityscapes dataset were always trained with the full size images. For larger images such as landscape images from Flickr which reach resolutions up to $2048\times1024$ pixels this strategy is computationally not feasible and we chose a crop size of $512\times512$ pixels.
-\begin{figure}[] \label{tab:5.3}
+As the version of NCSN \cite{score_3} does not support training on/sampling of non-square images, the model was adapted to do so. Actually, the model already was able to process non-square images natively, but there was a small bug that we fixed to make non-square training/sampling possible. To show the importance of this bugfix, we investigate the influence of the above described effect on NCSN. For this purpose, we trained two identical NCSN, one on $256\times256$ pixels crops and one on the $256\times512$ pixels original images. Some example results can be seen in \hyperref[fig:5.7]{Fig.\,5.7}. It is clearly visible that the full image model outperforms the cropped image model when the focus of evaluation is on street scene logic. It must be mentioned that for semantic image synthesis – the task for our experiments – this logic information actually is given by the semantic map which initially gives rise to the idea of training on crops at all. Nevertheless, we suspect that a model knowing the logic without a semantic map also performs somewhat better than if it did not. For that reason, models for further experiments on the cityscapes dataset were always trained with the full size images. For larger images such as landscape images from Flickr which reach resolutions up to $2048\times1024$ pixels this strategy is computationally not feasible and we chose a crop size of $512\times512$ pixels.
+\begin{figure}[] \label{fig:5.7}
     \centering
     \setlength\tabcolsep{-2pt}
     \begin{tabular}{ccc}
@@ -290,13 +290,13 @@ There are roughly $25$ parameters describing the architecture design and trainin
 
 One important parameter we had to change is the parameter for the maximum noise scale $\sigma_{max}$. As explained in \hyperref[sec:4.3.1]{Sec.\,4.3.1} the maximum noise scale should be chosen as the maximum Euclidean distance between the training images. For a dataset with $n$ images the number of distances calculations is $1+2+\dots+n=\sum_{k=1}^nk=\frac{n^2+n}{2}$ and therefore the complexity of this computation is $\mathcal{O}(n^2)$. With such a high complexity it is computationally infeasible to compute the distances between all images, i.e. to find the true maximum Euclidean distance, for large datasets. As a compromise, we decided to calculate $20{,}000{,}000$ distances between randomly chosen training images. We then get the maximum noise scale value for the cityscapes dataset as $\sigma_{max}\approx338$.
 
-With the final parameters set up we trained our model on one Nvidia A100 40GB GPU with a batch size of $8$ for $1000$ epochs which took $\sim11$ days. Note that, as justified in \hyperref[sec:5.3.1]{Sec.\,5.3.1}, the network was trained with mixed precision. The loss curve of the network is shown is \hyperref[fig:]{Fig.\,TODO}. The loss curves suggests that the network did not memorize the training images, i.e. is not subject to overfitting.
+With the final parameters set up we trained our model on one Nvidia A100 40GB GPU with a batch size of $8$ for $1000$ epochs which took $\sim11$ days. Note that, as justified in \hyperref[sec:5.3.1]{Sec.\,5.3.1}, the network was trained with mixed precision. The loss curve of the network is shown is \hyperref[fig:5.8]{Fig.\,5.8}. The loss curves suggests that the network did not memorize the training images, i.e. is not subject to overfitting.
 
 \subsubsection{Training noise-conditional U-Net}
 Following \hyperref[sec:5.2]{Sec.\,5.2} on implementation of semantic image synthesis, we implement the classical U-Net from \cite{unet} and adopt it to be conditioned on $\log\sigma(t)$. The network is then trained on noisy cityscapes training images whose noise scales are calculated via \hyperref[equ:5.2]{Equ.\,5.2} with random timesteps $t\in[0,0.8]$. The network is not trained on the noise scales corresponding to $t\in(0.8,1]$. This is due to the realization that the network performs poorly on such high noise scales and is therefore no help in the image generation process. For this reason, according to the scaling factor function in \hyperref[equ:5.5]{Equ.\,5.5}, the segmentation network does not need to predict an image with such high noise anyway, so there is no need to train it for high noise $t>0.8$.
 
 %
-\begin{figure}[] \label{fig:3.2}
+\begin{figure}[] \label{fig:5.8}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{Chapters/figures/experiments/cityscapes/loss_city_seg.jpg}
@@ -309,7 +309,7 @@ Following \hyperref[sec:5.2]{Sec.\,5.2} on implementation of semantic image synt
     \caption[Losses of U-Net/NCSN++ on Cityscapes dataset]{Training and evaluation loss of U-Net and NCSN++ trained on the Cityscapes dataset}
 \end{figure}
 %
-\begin{figure}[] \label{fig:3.2}
+\begin{figure}[] \label{fig:5.9}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
@@ -324,9 +324,9 @@ Following \hyperref[sec:5.2]{Sec.\,5.2} on implementation of semantic image synt
     \caption[Pixel accuracy and mIoU for U-Net on Cityscapes dataset]{Pixel accuracy and mean IoU for noise-conditional U-Net trained on the Cityscapes dataset}
 \end{figure}
 %
-Given the same maximum noise scale $\sigma_{max}\approx338$ as for NSCN++ and a learning rate of $0.0002$ for the Adam optimizer \cite{adam} we use for optimization, we trained the network for $600$ epochs with a batch size of $8$. In \hyperref[fig:]{Fig.\,TODO} the loss curve is shown and as with NCSN++ there is no sign of overfitting. In order to get a quantitative impression of the performance of the segmentation network, we evaluated the pixel accuracy and the mean IoU separately for $41$ timesteps in $[0 ,0.8]$. The resulting curves in \hyperref[fig:]{Fig.\,TODO} show, as expected, a decrease of pixel accuracy and mIoU towards higher noise scales. It can also be seen that the values for $t=0.8$ are not significantly higher than for $t>0.8$, where the network was not trained. This indeed shows that for $t>=0.8$ the network is just guessing. A surprising finding in the two curves is the plateau region $\approx0.6<t<0.7$ for which we do not have a satisfying explanation.
+Given the same maximum noise scale $\sigma_{max}\approx338$ as for NSCN++ and a learning rate of $0.0002$ for the Adam optimizer \cite{adam} we use for optimization, we trained the network for $600$ epochs with a batch size of $8$. In \hyperref[fig:5.8]{Fig.\,5.8} the loss curve is shown and as with NCSN++ there is no sign of overfitting. In order to get a quantitative impression of the performance of the segmentation network, we evaluated the pixel accuracy and the mean IoU separately for $41$ timesteps in $[0 ,0.8]$. The resulting curves in \hyperref[fig:5.9]{Fig.\,5.9} show, as expected, a decrease of pixel accuracy and mIoU towards higher noise scales. It can also be seen that the values for $t=0.8$ are not significantly higher than for $t>0.8$, where the network was not trained. This indeed shows that for $t>=0.8$ the network is just guessing. A surprising finding in the two curves is the plateau region $\approx0.6<t<0.7$ for which we do not have a satisfying explanation.
 %
-\begin{figure} \label{fig:5.5}
+\begin{figure} \label{fig:5.10}
     \tiny
     \centering
     \setlength\tabcolsep{-2pt}
@@ -344,11 +344,11 @@ Given the same maximum noise scale $\sigma_{max}\approx338$ as for NSCN++ and a 
 
 \subsection{Finding optimal sampling parameters} \label{sec:5.4.4}
 
-There are two parameters which are essential for high quality samples. The signal to noise ratio $snr$ of the Langevin sampler and the maximum scale factor $s_0$ from \hyperref[equ:5.5]{Equ.\,5.5}. 
+There are two parameters which are essential for high quality samples. The signal-to-noise ratio $snr$ of the Langevin sampler and the maximum scale factor $s_0$ from \hyperref[equ:5.5]{Equ.\,5.5}. 
 
-According to \cite{score_1} a high $snr$ produces samples of higher image quality while a lower $snr$ produces samples of higher diversity. Moreover, the authors of \cite{score_1} recommend choices of $snr\in[0.05,0.2]$. We qualitatively tested values in this range on unconditional samples of the Cityscapes dataset. It is really hard to see any differences in the samples but we think that the higher sample quality manifests itself in sharper edges which in our opinion does look worse for higher values of $snr$ for the Cityscapes dataset. We therefore decide to go with a value of $snr=0.1$, but the reader is invited to form his or her own opinion by looking at the samples in \hyperref[fig:]{Fig.\,TODO}. The influence of $snr$ was also investigated on conditional samples but we were not able to find any differences in sampling quality at all.
+According to \cite{score_1} a high $snr$ produces samples of higher image quality while a lower $snr$ produces samples of higher diversity. Moreover, the authors of \cite{score_1} recommend choices of $snr\in[0.05,0.2]$. We qualitatively tested values in this range on unconditional samples of the Cityscapes dataset. It is really hard to see any differences in the samples, but we think that the higher sample quality manifests itself in sharper edges which in our opinion does look worse for higher values of $snr$ for the Cityscapes dataset. We therefore decide to go with a value of $snr=0.1$, but the reader is invited to form his or her own opinion by looking at the samples in \hyperref[fig:5.11]{Fig.\,5.11}. The influence of $snr$ was also investigated on conditional samples but we were not able to find any differences in sampling quality at all.
 %
-\begin{figure} \label{fig:5.5}
+\begin{figure} \label{fig:5.11}
     \tiny
     \centering
     \setlength\tabcolsep{1pt}
@@ -374,7 +374,7 @@ According to \cite{score_1} a high $snr$ produces samples of higher image qualit
 \end{figure}
 %
 
-As seen in \hyperref[sec:5.2.5]{Sec.\,5.2.5} the maximum scale factor $s_0$ is weighting the relation between the gradients of the score network and the gradients of the semantic segmentation networks. In qualitative experiments we found that values of $s_0$ in the range $[0.0005,0.0035]$ produce visually appealing results that also comply to the given semantic map. We noticed that for higher values the samples looked slightly worse, i.e. over-saturated, and for lower values the compliance with the semantic map decreases. To quantify these effects we sampled $100$ images for $s_0=0.0005, 0.001, \dots, 0.0035$ using the same $100$ segmentation maps for each value of $s_0$. The results in \hyperref[tab:5.3]{Tab.\,5.3} confirm that the images quality (FID) decreases and the pixel accuracy as well as the mean IoU increases with higher $s_0$. We think that $s_0=0.002$ is a good compromise between image quality and semantic segmentation map compliance and therefore use this value for sampling.
+As seen in \hyperref[sec:5.2.5]{Sec.\,5.2.5} the maximum scale factor $s_0$ is weighting the relation between the gradients of the score network and the gradients of the semantic segmentation networks. In qualitative experiments, we found that values of $s_0$ in the range $[0.0005,0.0035]$ produce visually appealing results that also comply to the given semantic map. We noticed that for higher values the samples looked slightly worse, i.e. over-saturated, and for lower values the compliance with the semantic map decreases. To quantify these effects we sampled $100$ images for $s_0=0.0005, 0.001, \dots, 0.0035$ using the same $100$ segmentation maps for each value of $s_0$. The results in \hyperref[tab:5.3]{Tab.\,5.3} confirm that the images quality (FID) decreases and the pixel accuracy as well as the mean IoU increases with higher $s_0$. We think that $s_0=0.002$ is a good compromise between image quality and semantic segmentation map compliance, and therefore use this value for sampling.
 
 \begin{table}[] \label{tab:5.3}
     \centering
@@ -394,7 +394,7 @@ As seen in \hyperref[sec:5.2.5]{Sec.\,5.2.5} the maximum scale factor $s_0$ is w
 
 With the trained models and the sampling parameters $snr=0.1$ and $s_0=0.002$ we sampled images on all $500$ testing semantic label maps of the Cityscapes dataset. We further did the same for the models CRN \cite{crn}, pix2pixHD \cite{pix2pixHD} and SPADE \cite{spade}, either using pretrained models (CRN) or training them ourselves if no pretrained models were provided (pix2pixHD, SPADE) for resolution $512\times256$. It is worth noting that these $3$ models (and adaptations of them) are state-of-the-art models, occupying $6$ of the top $10$ places in semantic image synthesis benchmarks (sorting by mIoU) on the Cityscapes dataset (see \url{https://paperswithcode.com/sota/image-to-image-translation-on-cityscapes}). 
 %
-\begin{figure} \label{fig:5.5}
+\begin{figure} \label{fig:5.12}
     \small
     \centering
     \setlength\tabcolsep{1pt}
@@ -430,11 +430,11 @@ With the trained models and the sampling parameters $snr=0.1$ and $s_0=0.002$ we
 
 To compare our results to the ones of CRN, pix2pixHD and SPADE we use several metrics: Qualitative visual comparisons, image quality comparisons using the FID score (\hyperref[sec:fid]{Sec.\,5.4.2}) and semantic segmentation comparisons using pixel accuracy (\hyperref[sec:acc]{Sec.\,5.4.2}) and mean IoU (\hyperref[sec:fid]{Sec.\,5.4.2}). To calculate the FID scores, a python package called \textit{pytorch-fid} \cite{fid_pytorch} was used. To produce the semantic maps from the sampled images to calculate pixel accuracy and mean IoU, a pretrained version of the semantic segmentation network \textit{Dilated Residual Network} (DRN) \cite{drn} was used. The reason for this choice is that DRN generally performs very well on the Cityscapes dataset, that DRN was used in similar model comparisons in \cite{pix2pix} and \cite{spade} and that we want to prevent bias by using another network than U-Net for our analysis.
  
-The visual comparison of some explicitly selected samples is presented in \hyperref[fig:]{Fig.\,TODO}. In our opinion our results have the possibility to outperform the visual appearance of the other models. However, there are two very important restrictions to this opinion: First, our samples do not always look better, therefore we provide more, uncurated samples in the appendix in \hyperref[tab:a1]{Tab.\,A.1}. And second, apparently our model is very bad at sampling fine structures of the semantic map, e.g. persons or street signs. 
+The visual comparison of some explicitly selected samples is presented in \hyperref[fig:5.12]{Fig.\,5.12}. In our opinion, our results have the possibility to outperform the visual appearance of the other models. However, there are two very important restrictions to this opinion: First, our samples do not always look better, therefore we provide more, uncurated samples in the appendix in \hyperref[tab:a1]{Tab.\,A.1}. And second, apparently our model is very bad at sampling fine structures of the semantic map, e.g. persons or street signs. 
 
 This poor performance on fine structure can also be seen in the pixel accuracy and mIoU scores in \hyperref[tab:5.4]{Tab.\,5.4}. While the pixel accuracy score is acceptable in comparison to the other models, the mIoU is not. For the quality comparison using FID scores in \hyperref[tab:5.5]{Tab.\,5.5} we conclude that our model perform quite good in comparison to the other models.
 
-All in all we conclude to things for this experiment: First, our approach of semantic images synthesis using SGMs is capable to keep up with state-of the-art models. Second, there is room for improvements especially in semantic map compliance for fine structures. We think that a more complex noise-conditioned semantic segmentation network than the relatively simple U-Net could increase mean IoU and pixel accuracy scores if being better for higher noise scales. We also think that such a network would increase sample quality as we suppose that the main factor for bad quality is not NCSN++ but the semantic segmentation network performing poor on high noise scales.
+All in all we conclude to things for this experiment: First, our approach of semantic images synthesis using SGMs is capable to keep up with state-of the-art models. Second, there is room for improvements, especially in semantic map compliance for fine structures. We think that a more complex noise-conditioned semantic segmentation network than the relatively simple U-Net could increase mean IoU and pixel accuracy scores if being better for higher noise scales. We also think that such a network would increase sample quality, as we suppose that the main factor for bad quality is not NCSN++ but the semantic segmentation network performing poor on high noise scales.
 
 \begin{table}[] \label{tab:5.4}
     \centering
@@ -469,21 +469,50 @@ methods on the Cityscapes dataset. Oracle describes scores on original images}
 \section[Synthesizing high resolution landscapes]{Synthesizing high resolution landscapes%
     \sectionmark{Flickr landscapes}} \label{sec:5.5}
 \sectionmark{Flickr landscapes}
-In the experiment on the Cityscapes dataset in \hyperref[sec:5.4]{Sec.\,5.4} we found that our semantic image synthesis model performs poor on fine structures like persons and traffic lights but good on coarse structures like streets, cars and vegetation. For that reason we want to test our model on a dataset with less labels and more coarse structures. Inspired by impressive results from Esser and Rombach \cite{taming} on a dataset called \textit{S-FLCKR} which contains $79266$ landscape images from the image platform Flickr, we chose to test our model on this dataset. The semantic maps for these images were generated with a COCO-stuff \cite{coco_stuff} segmentation network which also contains some landscape labels. Since these generated semantic maps are far from perfect, they do not represent \textit{ground truth} and therefore most quantitative measures cannot be applied to our results.
+In the experiment on the Cityscapes dataset in \hyperref[sec:5.4]{Sec.\,5.4} we found that our semantic image synthesis model performs poor on fine structures like persons and traffic lights but good on coarse structures like streets, cars and vegetation. For that reason, we want to test our model on a dataset with fewer labels and more coarse structures. Inspired by impressive results from Esser and Rombach \cite{taming} on a dataset called \textit{S-FLCKR} which contains $79266$ landscape images from the image platform Flickr, we chose to test our model on this dataset. The semantic maps for these images were generated with a COCO-stuff \cite{coco_stuff} segmentation network which also contains some landscape labels. Since these generated semantic maps are far from perfect, they do not represent \textit{ground truth} and therefore most quantitative measures cannot be applied to our results.
 
 \subsection{Training and Sampling}
-For training of our models we use the same model parameters as described in \hyperref[sec:5.4]{Sec.\,5.4}, except for the maximum Euclidean distance, which was calculated to be $\sigma_{max}\approx440$. With a batch size of $8$ resp. $22$, NCSN++ and U-Net were trained for $30$ resp. $10$ epochs. One important deviation from the training procedure for the Cityscapes dataset is that the landscape images are of various resolutions up to $1024\times2048$ and so the models were trained on $512\times512$ randomly cropped and horizontally flipped images. This higher training resolution will allow us to sample images of higher resolution but also drastically increases vRAM usage during NSCN++ training to $\approx80GB$ and sampling time to $\approx1$\,h per sample. We present loss curves as well as mIoU and pixel accuracy curves in \hyperref[fig:]{Fig.\,TODO} and \hyperref[fig:]{Fig.\,TODO}.
+For training of our models, we use the same model parameters as described in \hyperref[sec:5.4]{Sec.\,5.4}, except for the maximum Euclidean distance, which was calculated to be $\sigma_{max}\approx440$. With a batch size of $8$ resp. $22$, NCSN++ and U-Net were trained for $30$ resp. $10$ epochs. One important deviation from the training procedure for the Cityscapes dataset is that the landscape images are of various resolutions up to $1024\times2048$ and so the models were trained on $512\times512$ randomly cropped and horizontally flipped images. This higher training resolution will allow us to sample images of higher resolution but also drastically increases vRAM usage during NSCN++ training to $\approx80GB$ and sampling time to $\approx1$\,h per sample. We present loss curves as well as mIoU and pixel accuracy curves in \hyperref[fig:]{Fig.\,TODO} and \hyperref[fig:]{Fig.\,TODO}.
 
-In order to get a semantic segmentation network that works well on landscapes, we condensed the $182$ class labels of COCO-stuff to $6$ landscape classes – Sea, Mountain, Grass, Forest, Sky, Clouds – and one "unlabeled" class. During training the model is penalized only for incorrect predictions on the $6$ landscape images. For sampling we drew our own semantic maps using the $6$ classes described above.
+In order to get a semantic segmentation network that works well on landscapes, we condensed the $182$ class labels of COCO-stuff to $6$ landscape classes – Sea, Mountain, Grass, Forest, Sky, Clouds – and one "unlabeled" class. During training, the model is penalized only for incorrect predictions on the $6$ landscape images. For sampling, we drew our own semantic maps using the $6$ classes described above.
 
 For the sampling parameters $s_0$ and $snr$, no quantitative experiments were conducted, because the enormous sampling time of $\approx1$\,h per image did not allow us to accumulate enough samples for an extended analysis. Qualitative examinations together with the insights from \hyperref[sec:5.4.4]{Sec.\,5.4.4} let us conclude that $s_0=0.1$ and $snr=TODO$ work fine for the S-FLCKR dataset. A few unconditional sample can be found in \hyperref[fig:]{Fig.\,TODO}.
+%
+\begin{figure}[] \label{fig:3.2}
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{Chapters/figures/experiments/flickr/loss_flickr_seg.jpg}
+        \caption{U-Net}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{Chapters/figures/experiments/flickr/loss_flickr_ncsn.jpg}
+        \caption{NSCN++}
+    \end{subfigure}
+    \caption[Losses of U-Net/NCSN++ on S-FLCKR dataset]{Training and evaluation loss of U-Net and NCSN++ trained on the S-FLCKR dataset}
+\end{figure}
+%
+%
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{Chapters/figures/experiments/flickr/flickr_acc.PNG}
+         \caption{Pixel Accuracy}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{Chapters/figures/experiments/flickr/flickr_mIoU.PNG}
+         \caption{Mean IoU}
+    \end{subfigure}
+    \caption[Pixel accuracy and mIoU for U-Net on S-FLCKR dataset]{Pixel accuracy and mean IoU for noise-conditional U-Net trained on the S-FLCKR dataset}
+\end{figure}
 %
 \subsection{Results}
 
 \section[ADE20K - Pushing the model to its limits]{ADE20K - Pushing the model to its limits%
     \sectionmark{ADE20K}} \label{sec:5.6}
 \sectionmark{ADE20K}
-In this experiment we want to qualitatively evaluate the performance of the proposed semantic image synthesis model on the ADE20K dataset \cite{ade20k}. The goal is to get a feeling for the limits of the current model, especially for the relatively simple U-Net semantic segmentation network. The ADE20K dataset is generally difficult to learn due to its large variety of scenes and the sample quality is to be expected poorer than for simple datasets such as Cityscapes. 
+In this experiment, we want to qualitatively evaluate the performance of the proposed semantic image synthesis model on the ADE20K dataset \cite{ade20k}. The goal is to get a feeling for the limits of the current model, especially for the relatively simple U-Net semantic segmentation network. The ADE20K dataset is generally difficult to learn due to its large variety of scenes and also due to the small image sizes, and the sample quality is to be expected poorer than for simple datasets such as Cityscapes. 
 %
 \subsection{The ADE20K dataset}
 The ADE20K dataset \cite{ade20k}  is designed for semantic segmentation and semantic image synthesis of images with no general type of scene. It consists of $25574$ training and $2000$ testing images of various resolutions which all come with a fine annotated label map. The images span $365$ different scenes and contain $707{,}868$ unique objects from $3{,}688$ categories. The $365$ scenes are very diverse, containing scenes of urban buildings, landscapes, rooms, such as bathrooms and kitchens, scenes of daily life and many more. 
