@@ -9,6 +9,6 @@ If you find this thesis useful for your research, please consider citing
     author="Tim Küchler",
     title={Semantic Image Synthesis with Score-Based Generative Models},
     year={2021}
-    howpublished={\url{https://github.com/TimK1998/SemanticSynthesisForScoreBasedModels}},
+    howpublished={\url{https://github.com/TimK1998/SemanticSynthesisForScoreBasedModels}}
 }
 ```
